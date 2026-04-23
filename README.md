@@ -2,13 +2,13 @@
 
 This workspace is split into two folders:
 
-- `fronedt` (frontend)
+- `frontend` (frontend)
 - `backed` (backend)
 
 ## Structure
 
 ```text
-fronedt/
+frontend/
   index.html
   main.js
   package.json
@@ -32,7 +32,7 @@ backed/
 ## Run Frontend
 
 ```bash
-cd fronedt
+cd frontend
 npm install
 npm run build:css
 npm run dev
