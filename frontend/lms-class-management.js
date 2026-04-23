@@ -19,7 +19,7 @@ const logoutButton = document.getElementById("logout-button");
 const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
-const teachersSection = document.getElementById("teachers");
+const usersSection = document.getElementById("users");
 const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
@@ -71,6 +71,10 @@ if (sessionBadge && currentAuth) {
 
 if (logoutButton) {
     logoutButton.addEventListener("click", () => {
+        const confirmed = window.confirm("Are you sure you want to log out?");
+        if (!confirmed) {
+            return;
+        }
         if (typeof clearAuthState === "function") {
             clearAuthState();
         }
@@ -83,7 +87,7 @@ if (authWarning) {
         authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
         authWarning.classList.remove("hidden");
     } else if (currentRole === "teacher") {
-        authWarning.textContent = "Teacher access can manage classes and subjects, while the teachers and exams areas remain informational.";
+        authWarning.textContent = "User access can manage classes and subjects, while the users and exams areas remain informational.";
         authWarning.classList.remove("hidden");
     }
 }
@@ -106,13 +110,62 @@ if (classFormCard && !canManageClasses) {
     classFormCard.classList.add("opacity-75");
 }
 
-if (teachersSection && currentRole !== "admin") {
-    teachersSection.classList.add("hidden");
+const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
+
+if (currentRole !== "admin") {
+    if (usersNavLink) {
+        usersNavLink.classList.add("hidden");
+    }
+    if (examsNavLink) {
+        examsNavLink.classList.add("hidden");
+    }
 }
 
-if (examsSection && currentRole !== "admin") {
-    examsSection.classList.add("hidden");
+const pageSections = {
+    classes: document.getElementById("classes"),
+    subjects: document.getElementById("subjects"),
+    users: usersSection,
+    exams: examsSection
+};
+
+function pageFromHash() {
+    const hash = window.location.hash || "";
+    return hash.startsWith("#") ? hash.slice(1) : hash;
 }
+
+function showOnlyPage(page) {
+    Object.values(pageSections).forEach((section) => {
+        if (section) {
+            section.classList.add("hidden");
+        }
+    });
+
+    const target = pageSections[page];
+    if (target) {
+        target.classList.remove("hidden");
+    }
+}
+
+function syncPageFromHash() {
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "exams"] : ["classes", "subjects"];
+    const page = pageFromHash();
+
+    if (!page) {
+        window.location.hash = "#classes";
+        return;
+    }
+
+    if (!allowedPages.includes(page)) {
+        window.location.hash = "#classes";
+        return;
+    }
+
+    showOnlyPage(page);
+}
+
+window.addEventListener("hashchange", syncPageFromHash);
+syncPageFromHash();
 
 async function requestJson(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
@@ -221,8 +274,16 @@ function renderClasses() {
         deleteButton.textContent = "Delete";
         deleteButton.disabled = !canManageClasses;
         deleteButton.addEventListener("click", async () => {
-            await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
-            await refreshAll();
+            if (!window.confirm(`Are you sure you want to delete class "${schoolClass.className}"?`)) {
+                return;
+            }
+            try {
+                await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
+                await refreshAll();
+                window.alert("Class deleted successfully!");
+            } catch (error) {
+                window.alert(`Failed to delete class: ${error.message}`);
+            }
         });
 
         actionsCell.append(editButton, deleteButton);
@@ -250,22 +311,40 @@ subjectForm.addEventListener("submit", async (event) => {
     }
 
     const id = subjectIdInput.value.trim();
-    const payload = { name: subjectNameInput.value.trim() };
+    const name = subjectNameInput.value.trim();
 
-    if (id) {
-        await requestJson(`/api/admin/subjects/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload)
-        });
-    } else {
-        await requestJson("/api/admin/subjects", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+    if (!name) {
+        window.alert("Subject name cannot be empty.");
+        return;
     }
 
-    resetSubjectForm();
-    await refreshAll();
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+        window.alert("Subject name can only contain letters.");
+        return;
+    }
+
+    const payload = { name };
+
+    try {
+        if (id) {
+            await requestJson(`/api/admin/subjects/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject updated successfully!");
+        } else {
+            await requestJson("/api/admin/subjects", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject created successfully!");
+        }
+
+        resetSubjectForm();
+        await refreshAll();
+    } catch (error) {
+        window.alert(`Failed to save subject: ${error.message}`);
+    }
 });
 
 classForm.addEventListener("submit", async (event) => {
@@ -275,27 +354,57 @@ classForm.addEventListener("submit", async (event) => {
     }
 
     const id = classIdInput.value.trim();
-    const payload = {
-        className: classNameInput.value.trim(),
-        grade: classGradeInput.value.trim(),
-        academicYear: classYearInput.value.trim(),
-        subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => Number(checkbox.value))
-    };
+    const className = classNameInput.value.trim();
+    const grade = classGradeInput.value.trim();
+    const academicYear = classYearInput.value.trim();
 
-    if (id) {
-        await requestJson(`/api/admin/classes/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload)
-        });
-    } else {
-        await requestJson("/api/admin/classes", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+    if (!className || !grade || !academicYear) {
+        window.alert("All fields are required.");
+        return;
     }
 
-    resetClassForm();
-    await refreshAll();
+    if (!/^\d+$/.test(grade)) {
+        window.alert("Grade must be a number.");
+        return;
+    }
+
+    if (parseInt(grade, 10) > 13) {
+        window.alert("Grade cannot be greater than 13.");
+        return;
+    }
+
+    if (!/^\d+$/.test(academicYear)) {
+        window.alert("Academic Year must be a number.");
+        return;
+    }
+
+    const payload = {
+        className,
+        grade,
+        academicYear,
+        subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => checkbox.value)
+    };
+
+    try {
+        if (id) {
+            await requestJson(`/api/admin/classes/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Class updated successfully!");
+        } else {
+            await requestJson("/api/admin/classes", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Class created successfully!");
+        }
+
+        resetClassForm();
+        await refreshAll();
+    } catch (error) {
+        window.alert(`Failed to save class: ${error.message}`);
+    }
 });
 
 subjectResetButton.addEventListener("click", resetSubjectForm);

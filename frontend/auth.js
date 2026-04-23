@@ -46,7 +46,7 @@ function roleLabel(role) {
         case "admin":
             return "Admin";
         case "teacher":
-            return "Teacher";
+            return "User";
         case "student":
             return "Student";
         default:

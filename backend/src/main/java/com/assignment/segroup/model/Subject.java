@@ -1,21 +1,16 @@
 package com.assignment.segroup.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
-@Entity
-@Table(name = "subjects")
+@Document(collection = "subjects")
 public class Subject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String name;
 
     public Subject() {
@@ -25,7 +20,7 @@ public class Subject {
         this.name = name;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

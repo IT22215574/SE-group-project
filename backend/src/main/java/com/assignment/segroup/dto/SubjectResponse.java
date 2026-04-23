@@ -1,4 +1,4 @@
 package com.assignment.segroup.dto;
 
-public record SubjectResponse(Long id, String name) {
+public record SubjectResponse(String id, String name) {
 }

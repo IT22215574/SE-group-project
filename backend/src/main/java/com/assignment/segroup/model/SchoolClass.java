@@ -1,48 +1,31 @@
 package com.assignment.segroup.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "school_classes")
+@Document(collection = "school_classes")
 public class SchoolClass {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     private String className;
 
-    @Column(nullable = false)
     private String grade;
 
-    @Column(nullable = false)
     private String academicYear;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "class_subjects",
-            joinColumns = @JoinColumn(name = "class_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id")
-    )
+    @DBRef
     private Set<Subject> subjects = new HashSet<>();
 
     public SchoolClass() {
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
