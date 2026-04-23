@@ -71,6 +71,10 @@ if (sessionBadge && currentAuth) {
 
 if (logoutButton) {
     logoutButton.addEventListener("click", () => {
+        const confirmed = window.confirm("Are you sure you want to log out?");
+        if (!confirmed) {
+            return;
+        }
         if (typeof clearAuthState === "function") {
             clearAuthState();
         }
