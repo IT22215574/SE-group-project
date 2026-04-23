@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "Backend is running. Frontend is in the fronedt folder.";
+        return "Backend is running. Open /admin/classes for LMS class management.";
     }
 }

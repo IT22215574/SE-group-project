@@ -48,3 +48,5 @@ mvn spring-boot:run
 ```
 
 Backend URL: `http://localhost:5001`
+
+Admin Class Management UI: `http://localhost:5001/admin/classes`
