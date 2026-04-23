@@ -19,7 +19,7 @@ const logoutButton = document.getElementById("logout-button");
 const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
-const teachersSection = document.getElementById("teachers");
+const usersSection = document.getElementById("users");
 const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
@@ -83,7 +83,7 @@ if (authWarning) {
         authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
         authWarning.classList.remove("hidden");
     } else if (currentRole === "teacher") {
-        authWarning.textContent = "Teacher access can manage classes and subjects, while the teachers and exams areas remain informational.";
+        authWarning.textContent = "Teacher access can manage classes and subjects, while the users and exams areas remain informational.";
         authWarning.classList.remove("hidden");
     }
 }
@@ -106,13 +106,62 @@ if (classFormCard && !canManageClasses) {
     classFormCard.classList.add("opacity-75");
 }
 
-if (teachersSection && currentRole !== "admin") {
-    teachersSection.classList.add("hidden");
+const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
+
+if (currentRole !== "admin") {
+    if (usersNavLink) {
+        usersNavLink.classList.add("hidden");
+    }
+    if (examsNavLink) {
+        examsNavLink.classList.add("hidden");
+    }
 }
 
-if (examsSection && currentRole !== "admin") {
-    examsSection.classList.add("hidden");
+const pageSections = {
+    classes: document.getElementById("classes"),
+    subjects: document.getElementById("subjects"),
+    users: usersSection,
+    exams: examsSection
+};
+
+function pageFromHash() {
+    const hash = window.location.hash || "";
+    return hash.startsWith("#") ? hash.slice(1) : hash;
 }
+
+function showOnlyPage(page) {
+    Object.values(pageSections).forEach((section) => {
+        if (section) {
+            section.classList.add("hidden");
+        }
+    });
+
+    const target = pageSections[page];
+    if (target) {
+        target.classList.remove("hidden");
+    }
+}
+
+function syncPageFromHash() {
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "exams"] : ["classes", "subjects"];
+    const page = pageFromHash();
+
+    if (!page) {
+        window.location.hash = "#classes";
+        return;
+    }
+
+    if (!allowedPages.includes(page)) {
+        window.location.hash = "#classes";
+        return;
+    }
+
+    showOnlyPage(page);
+}
+
+window.addEventListener("hashchange", syncPageFromHash);
+syncPageFromHash();
 
 async function requestJson(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
