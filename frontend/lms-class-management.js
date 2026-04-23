@@ -83,7 +83,7 @@ if (authWarning) {
         authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
         authWarning.classList.remove("hidden");
     } else if (currentRole === "teacher") {
-        authWarning.textContent = "Teacher access can manage classes and subjects, while the users and exams areas remain informational.";
+        authWarning.textContent = "User access can manage classes and subjects, while the users and exams areas remain informational.";
         authWarning.classList.remove("hidden");
     }
 }
