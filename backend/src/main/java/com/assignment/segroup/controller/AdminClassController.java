@@ -48,7 +48,7 @@ public class AdminClassController {
     }
 
     @GetMapping("/{id}")
-    public SchoolClassResponse getClassById(@PathVariable Long id) {
+    public SchoolClassResponse getClassById(@PathVariable String id) {
         SchoolClass schoolClass = schoolClassRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found"));
         return toResponse(schoolClass);
@@ -64,7 +64,7 @@ public class AdminClassController {
     }
 
     @PutMapping("/{id}")
-    public SchoolClassResponse updateClass(@PathVariable Long id, @Valid @RequestBody SchoolClassRequest request) {
+    public SchoolClassResponse updateClass(@PathVariable String id, @Valid @RequestBody SchoolClassRequest request) {
         SchoolClass schoolClass = schoolClassRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found"));
 
@@ -75,7 +75,7 @@ public class AdminClassController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClass(@PathVariable Long id) {
+    public void deleteClass(@PathVariable String id) {
         if (!schoolClassRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Class not found");
         }
@@ -89,8 +89,11 @@ public class AdminClassController {
         schoolClass.setAcademicYear(request.getAcademicYear().trim());
 
         Set<Subject> subjects = new LinkedHashSet<>();
-        for (Long subjectId : request.getSubjectIds()) {
-            Subject subject = subjectRepository.findById(subjectId)
+        for (String subjectId : request.getSubjectIds()) {
+            if (subjectId == null || subjectId.trim().isEmpty()) {
+                continue;
+            }
+            Subject subject = subjectRepository.findById(subjectId.trim())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid subject ID: " + subjectId));
             subjects.add(subject);
         }

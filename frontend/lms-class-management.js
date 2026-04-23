@@ -378,7 +378,7 @@ classForm.addEventListener("submit", async (event) => {
         className,
         grade,
         academicYear,
-        subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => Number(checkbox.value))
+        subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => checkbox.value)
     };
 
     try {

@@ -53,7 +53,7 @@ public class AdminSubjectController {
     }
 
     @PutMapping("/{id}")
-    public SubjectResponse updateSubject(@PathVariable Long id, @Valid @RequestBody SubjectRequest request) {
+    public SubjectResponse updateSubject(@PathVariable String id, @Valid @RequestBody SubjectRequest request) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
 
@@ -69,7 +69,7 @@ public class AdminSubjectController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSubject(@PathVariable Long id) {
+    public void deleteSubject(@PathVariable String id) {
         if (!subjectRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found");
         }
