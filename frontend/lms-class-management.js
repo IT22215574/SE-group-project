@@ -270,8 +270,16 @@ function renderClasses() {
         deleteButton.textContent = "Delete";
         deleteButton.disabled = !canManageClasses;
         deleteButton.addEventListener("click", async () => {
-            await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
-            await refreshAll();
+            if (!window.confirm(`Are you sure you want to delete class "${schoolClass.className}"?`)) {
+                return;
+            }
+            try {
+                await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
+                await refreshAll();
+                window.alert("Class deleted successfully!");
+            } catch (error) {
+                window.alert(`Failed to delete class: ${error.message}`);
+            }
         });
 
         actionsCell.append(editButton, deleteButton);
@@ -299,22 +307,40 @@ subjectForm.addEventListener("submit", async (event) => {
     }
 
     const id = subjectIdInput.value.trim();
-    const payload = { name: subjectNameInput.value.trim() };
+    const name = subjectNameInput.value.trim();
 
-    if (id) {
-        await requestJson(`/api/admin/subjects/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload)
-        });
-    } else {
-        await requestJson("/api/admin/subjects", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+    if (!name) {
+        window.alert("Subject name cannot be empty.");
+        return;
     }
 
-    resetSubjectForm();
-    await refreshAll();
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+        window.alert("Subject name can only contain letters.");
+        return;
+    }
+
+    const payload = { name };
+
+    try {
+        if (id) {
+            await requestJson(`/api/admin/subjects/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject updated successfully!");
+        } else {
+            await requestJson("/api/admin/subjects", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject created successfully!");
+        }
+
+        resetSubjectForm();
+        await refreshAll();
+    } catch (error) {
+        window.alert(`Failed to save subject: ${error.message}`);
+    }
 });
 
 classForm.addEventListener("submit", async (event) => {
@@ -324,27 +350,57 @@ classForm.addEventListener("submit", async (event) => {
     }
 
     const id = classIdInput.value.trim();
+    const className = classNameInput.value.trim();
+    const grade = classGradeInput.value.trim();
+    const academicYear = classYearInput.value.trim();
+
+    if (!className || !grade || !academicYear) {
+        window.alert("All fields are required.");
+        return;
+    }
+
+    if (!/^\d+$/.test(grade)) {
+        window.alert("Grade must be a number.");
+        return;
+    }
+
+    if (parseInt(grade, 10) > 13) {
+        window.alert("Grade cannot be greater than 13.");
+        return;
+    }
+
+    if (!/^\d+$/.test(academicYear)) {
+        window.alert("Academic Year must be a number.");
+        return;
+    }
+
     const payload = {
-        className: classNameInput.value.trim(),
-        grade: classGradeInput.value.trim(),
-        academicYear: classYearInput.value.trim(),
+        className,
+        grade,
+        academicYear,
         subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => Number(checkbox.value))
     };
 
-    if (id) {
-        await requestJson(`/api/admin/classes/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload)
-        });
-    } else {
-        await requestJson("/api/admin/classes", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-    }
+    try {
+        if (id) {
+            await requestJson(`/api/admin/classes/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Class updated successfully!");
+        } else {
+            await requestJson("/api/admin/classes", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Class created successfully!");
+        }
 
-    resetClassForm();
-    await refreshAll();
+        resetClassForm();
+        await refreshAll();
+    } catch (error) {
+        window.alert(`Failed to save class: ${error.message}`);
+    }
 });
 
 subjectResetButton.addEventListener("click", resetSubjectForm);

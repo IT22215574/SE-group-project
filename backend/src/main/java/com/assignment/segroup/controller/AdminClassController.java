@@ -9,6 +9,7 @@ import com.assignment.segroup.repository.SchoolClassRepository;
 import com.assignment.segroup.repository.SubjectRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/admin/classes")
 public class AdminClassController {

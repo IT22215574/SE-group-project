@@ -6,6 +6,7 @@ import com.assignment.segroup.model.Subject;
 import com.assignment.segroup.repository.SubjectRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Comparator;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/admin/subjects")
 public class AdminSubjectController {

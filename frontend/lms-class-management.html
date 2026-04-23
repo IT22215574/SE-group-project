@@ -36,7 +36,7 @@
             <form id="subject-form" class="mt-4 space-y-3">
                 <input id="subject-id" type="hidden" />
                 <label class="block text-sm font-medium">Subject Name</label>
-                <input id="subject-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mathematics" required />
+                <input id="subject-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mathematics" required pattern="[A-Za-z\s]+" title="Subject name can only contain letters." />
                 <div class="flex gap-2">
                     <button class="rounded-lg bg-emerald-600 px-4 py-2 text-white" type="submit">Save Subject</button>
                     <button id="subject-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
@@ -58,11 +58,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Grade</label>
-                    <input id="class-grade" class="w-full rounded-lg border border-slate-300 p-2" placeholder="10" required />
+                    <input id="class-grade" type="number" max="13" min="1" class="w-full rounded-lg border border-slate-300 p-2" placeholder="10" required title="Grade must be a number up to 13." />
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Academic Year</label>
-                    <input id="class-year" class="w-full rounded-lg border border-slate-300 p-2" placeholder="2026" required />
+                    <input id="class-year" class="w-full rounded-lg border border-slate-300 p-2" placeholder="2026" required pattern="\d+" title="Academic Year must be a number." />
                 </div>
                 <div>
                     <p class="text-sm font-medium">Assign Subjects</p>
