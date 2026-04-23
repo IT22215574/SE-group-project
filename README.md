@@ -35,9 +35,10 @@ backed/
 cd fronedt
 npm install
 npm run build:css
+npm run dev
 ```
 
-Open `fronedt/index.html` in a browser.
+Frontend URL: `http://localhost:3000`
 
 ## Run Backend
 
@@ -46,4 +47,4 @@ cd backed
 mvn spring-boot:run
 ```
 
-Backend default URL: `http://localhost:8080`
+Backend URL: `http://localhost:5001`
