@@ -14,9 +14,74 @@ const classYearInput = document.getElementById("class-year");
 const classResetButton = document.getElementById("class-reset");
 const subjectCheckboxes = document.getElementById("subject-checkboxes");
 const classTableBody = document.getElementById("class-table-body");
+const sessionBadge = document.getElementById("session-badge");
+const logoutButton = document.getElementById("logout-button");
+const authWarning = document.getElementById("auth-warning");
+const subjectFormCard = document.getElementById("subject-form-card");
+const classFormCard = document.getElementById("class-form-card");
+const teachersSection = document.getElementById("teachers");
+const examsSection = document.getElementById("exams");
 
 let subjects = [];
 let schoolClasses = [];
+const currentAuth = typeof requireAuth === "function" ? requireAuth() : null;
+
+if (!currentAuth) {
+    window.location.href = "./login.html";
+}
+
+const currentRole = currentAuth ? currentAuth.role : "visitor";
+const canManageSubjects = typeof roleCanManageSubjects === "function" ? roleCanManageSubjects(currentRole) : false;
+const canManageClasses = typeof roleCanManageClasses === "function" ? roleCanManageClasses(currentRole) : false;
+
+if (sessionBadge && currentAuth) {
+    sessionBadge.textContent = `${roleLabel(currentRole)}: ${currentAuth.email}`;
+}
+
+if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+        if (typeof clearAuthState === "function") {
+            clearAuthState();
+        }
+        window.location.href = "./login.html";
+    });
+}
+
+if (authWarning) {
+    if (currentRole === "student") {
+        authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
+        authWarning.classList.remove("hidden");
+    } else if (currentRole === "teacher") {
+        authWarning.textContent = "Teacher access can manage classes and subjects, while the teachers and exams areas remain informational.";
+        authWarning.classList.remove("hidden");
+    }
+}
+
+if (subjectFormCard && !canManageSubjects) {
+    subjectFormCard.querySelectorAll("input, button").forEach((element) => {
+        if (element.id !== "subject-reset") {
+            element.disabled = true;
+        }
+    });
+    subjectFormCard.classList.add("opacity-75");
+}
+
+if (classFormCard && !canManageClasses) {
+    classFormCard.querySelectorAll("input, button").forEach((element) => {
+        if (element.id !== "class-reset") {
+            element.disabled = true;
+        }
+    });
+    classFormCard.classList.add("opacity-75");
+}
+
+if (teachersSection && currentRole !== "admin") {
+    teachersSection.classList.add("hidden");
+}
+
+if (examsSection && currentRole !== "admin") {
+    examsSection.classList.add("hidden");
+}
 
 async function requestJson(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
@@ -63,6 +128,7 @@ function renderSubjects() {
         chip.type = "button";
         chip.className = "rounded-full border border-slate-300 px-3 py-1 text-xs";
         chip.textContent = `Edit ${subject.name}`;
+        chip.disabled = !canManageSubjects;
         chip.addEventListener("click", () => {
             subjectIdInput.value = String(subject.id);
             subjectNameInput.value = subject.name;
@@ -105,6 +171,7 @@ function renderClasses() {
         editButton.type = "button";
         editButton.className = "mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs";
         editButton.textContent = "Edit";
+        editButton.disabled = !canManageClasses;
         editButton.addEventListener("click", () => {
             classIdInput.value = String(schoolClass.id);
             classNameInput.value = schoolClass.className;
@@ -121,6 +188,7 @@ function renderClasses() {
         deleteButton.type = "button";
         deleteButton.className = "rounded-lg bg-red-600 px-3 py-1 text-xs text-white";
         deleteButton.textContent = "Delete";
+        deleteButton.disabled = !canManageClasses;
         deleteButton.addEventListener("click", async () => {
             await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
             await refreshAll();
@@ -146,6 +214,9 @@ async function refreshAll() {
 
 subjectForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!canManageSubjects) {
+        return;
+    }
 
     const id = subjectIdInput.value.trim();
     const payload = { name: subjectNameInput.value.trim() };
@@ -168,6 +239,9 @@ subjectForm.addEventListener("submit", async (event) => {
 
 classForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!canManageClasses) {
+        return;
+    }
 
     const id = classIdInput.value.trim();
     const payload = {

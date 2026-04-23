@@ -7,15 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
-<div class="mx-auto max-w-6xl p-6 md:p-10">
-    <header class="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h1 class="text-2xl font-bold md:text-3xl">LMS Class Management</h1>
-        <p class="mt-2 text-slate-600">Frontend portal for creating classes and assigning subjects.</p>
-    </header>
+<div class="mx-auto max-w-7xl p-4 md:p-8">
+    <nav class="mb-8 rounded-3xl border border-slate-200 bg-slate-950 px-5 py-4 text-white shadow-lg shadow-slate-900/10">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">LMS Dashboard</p>
+                <h1 class="mt-1 text-xl font-bold md:text-2xl">School Management System</h1>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                <a href="#classes" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Classes</a>
+                <a href="#subjects" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Subjects</a>
+                <a href="#teachers" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Teachers</a>
+                <a href="#exams" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Exams</a>
+                <span id="session-badge" class="rounded-full bg-emerald-500/20 px-4 py-2 text-emerald-200"></span>
+                <button id="logout-button" type="button" class="rounded-full bg-rose-500/20 px-4 py-2 text-rose-100 transition hover:bg-rose-500/30">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-    <section class="grid gap-6 md:grid-cols-2">
-        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <h2 class="text-lg font-semibold">Subject Form</h2>
+    <div id="auth-warning" class="mb-6 hidden rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"></div>
+
+    <section id="subjects" class="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700">Subjects</p>
+        <h2 class="mt-1 text-2xl font-bold text-slate-950">Subject Form</h2>
+        <p class="mt-2 text-sm text-slate-600">Create and manage the subject list used by classes and exams.</p>
+        <div id="subject-form-card" class="mt-5 max-w-2xl">
             <form id="subject-form" class="mt-4 space-y-3">
                 <input id="subject-id" type="hidden" />
                 <label class="block text-sm font-medium">Subject Name</label>
@@ -27,9 +43,12 @@
             </form>
             <div id="subject-list" class="mt-4 flex flex-wrap gap-2"></div>
         </div>
+    </section>
 
-        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <h2 class="text-lg font-semibold">Class Form</h2>
+    <section id="classes" class="grid gap-6 md:grid-cols-2">
+        <div id="class-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">Classes</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Class Form</h2>
             <form id="class-form" class="mt-4 space-y-3">
                 <input id="class-id" type="hidden" />
                 <div>
@@ -54,27 +73,50 @@
                 </div>
             </form>
         </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">Classes</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Class List</h2>
+                </div>
+                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">Manage records</span>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Class Name</th>
+                        <th class="p-3">Grade</th>
+                        <th class="p-3">Year</th>
+                        <th class="p-3">Subjects</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="class-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </section>
 
-    <section class="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-        <h2 class="text-lg font-semibold">Class List</h2>
-        <div class="mt-4 overflow-x-auto">
-            <table class="min-w-full text-left text-sm">
-                <thead>
-                <tr class="border-b border-slate-200">
-                    <th class="p-2">Class Name</th>
-                    <th class="p-2">Grade</th>
-                    <th class="p-2">Year</th>
-                    <th class="p-2">Subjects</th>
-                    <th class="p-2">Actions</th>
-                </tr>
-                </thead>
-                <tbody id="class-table-body"></tbody>
-            </table>
+    <section class="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+        <div id="teachers" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Teachers</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Teacher Management</h2>
+            <p class="mt-2 text-sm text-slate-600">Teacher management is coming soon. This navigation item is ready for the next module.</p>
+            <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">Placeholder section for teacher CRUD and assignment.</div>
+        </div>
+
+        <div id="exams" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">Exams</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Management</h2>
+            <p class="mt-2 text-sm text-slate-600">Exam management is coming soon. Use this area for schedules, papers, and results.</p>
+            <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">Placeholder section for exam setup and tracking.</div>
         </div>
     </section>
 </div>
 
+<script src="./auth.js"></script>
 <script src="./lms-class-management.js"></script>
 </body>
 </html>
