@@ -1,5 +1,26 @@
 const AUTH_STORAGE_KEY = "lmsAuth";
 
+function inferRoleFromEmail(email) {
+    if (!email) {
+        return "student";
+    }
+
+    const normalized = String(email).trim().toLowerCase();
+    const [localPart = "", domain = ""] = normalized.split("@");
+
+    if (localPart.startsWith("admin") || domain === "admin.com") {
+        return "admin";
+    }
+    if (localPart.startsWith("teacher") || domain === "teacher.com") {
+        return "teacher";
+    }
+    if (localPart.startsWith("student") || domain === "student.com") {
+        return "student";
+    }
+
+    return "student";
+}
+
 function getAuthState() {
     try {
         return JSON.parse(window.localStorage.getItem(AUTH_STORAGE_KEY)) || null;

@@ -21,6 +21,7 @@ const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
 const teachersSection = document.getElementById("teachers");
 const examsSection = document.getElementById("exams");
+const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
 let schoolClasses = [];
@@ -29,6 +30,36 @@ const currentAuth = typeof requireAuth === "function" ? requireAuth() : null;
 if (!currentAuth) {
     window.location.href = "./login.html";
 }
+
+function setActiveNavLinkFromHash() {
+    if (!navLinks.length) {
+        return;
+    }
+
+    const available = new Set(navLinks.map((link) => link.getAttribute("href")));
+    const hash = window.location.hash && available.has(window.location.hash) ? window.location.hash : null;
+
+    navLinks.forEach((link) => {
+        const href = link.getAttribute("href");
+        const isActive = Boolean(hash) && href === hash;
+        link.classList.toggle("text-blue-600", isActive);
+        link.classList.toggle("text-slate-900", !isActive);
+        if (isActive) {
+            link.setAttribute("aria-current", "page");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
+}
+
+navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+        setTimeout(setActiveNavLinkFromHash, 0);
+    });
+});
+
+window.addEventListener("hashchange", setActiveNavLinkFromHash);
+setActiveNavLinkFromHash();
 
 const currentRole = currentAuth ? currentAuth.role : "visitor";
 const canManageSubjects = typeof roleCanManageSubjects === "function" ? roleCanManageSubjects(currentRole) : false;

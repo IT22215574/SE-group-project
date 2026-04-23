@@ -8,19 +8,20 @@
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
 <div class="mx-auto max-w-7xl p-4 md:p-8">
-    <nav class="mb-8 rounded-3xl border border-slate-200 bg-slate-950 px-5 py-4 text-white shadow-lg shadow-slate-900/10">
+    <nav class="mb-8 rounded-3xl border border-slate-200 bg-white px-5 py-4 text-slate-900 shadow-sm">
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">LMS Dashboard</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-700">LMS Dashboard</p>
                 <h1 class="mt-1 text-xl font-bold md:text-2xl">School Management System</h1>
             </div>
-            <div class="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                <a href="#classes" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Classes</a>
-                <a href="#subjects" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Subjects</a>
-                <a href="#teachers" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Teachers</a>
-                <a href="#exams" class="rounded-full bg-white/10 px-4 py-2 transition hover:bg-white/20">Exams</a>
-                <span id="session-badge" class="rounded-full bg-emerald-500/20 px-4 py-2 text-emerald-200"></span>
-                <button id="logout-button" type="button" class="rounded-full bg-rose-500/20 px-4 py-2 text-rose-100 transition hover:bg-rose-500/30">Logout</button>
+            <div class="flex flex-wrap items-center gap-3 text-sm font-semibold">
+                <a href="#classes" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Classes</a>
+                <a href="#subjects" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Subjects</a>
+                <a href="#teachers" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Teachers</a>
+                <a href="#exams" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Exams</a>
+                <span class="mx-1 hidden h-6 w-px bg-slate-200 md:block" aria-hidden="true"></span>
+                <span id="session-badge" class="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700"></span>
+                <button id="logout-button" type="button" class="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">Logout</button>
             </div>
         </div>
     </nav>
