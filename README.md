@@ -3,7 +3,7 @@
 This workspace is split into two folders:
 
 - `frontend` (frontend)
-- `backed` (backend)
+- `backend` (backend)
 
 ## Structure
 
@@ -16,7 +16,7 @@ frontend/
   src/input.css
   dist/output.css
 
-backed/
+backend/
   pom.xml
   .env
   src/main/java/...
@@ -43,7 +43,7 @@ Frontend URL: `http://localhost:3000`
 ## Run Backend
 
 ```bash
-cd backed
+cd backend
 mvn spring-boot:run
 ```
 
