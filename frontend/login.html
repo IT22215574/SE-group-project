@@ -37,7 +37,7 @@
                 <button type="submit" class="w-full rounded-2xl bg-slate-950 px-4 py-3.5 font-semibold text-white transition hover:bg-slate-800">Sign In</button>
             </form>
 
-            <div id="login-message" class="mt-4 hidden rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"></div>
+            <div id="login-message" class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 hidden"></div>
             <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 Demo access: any email and password will work. Role selection controls what you can see after sign in.
             </div>
@@ -71,7 +71,7 @@
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
-    const existingAuth = typeof getAuthState === "function" ? getAuthState() : null;
+    const existingAuth = getAuthState();
     if (existingAuth) {
         window.location.href = "./lms-class-management.html";
     }
@@ -89,9 +89,7 @@
             return;
         }
 
-        if (typeof setAuthState === "function") {
-            setAuthState({ role, email });
-        }
+        setAuthState({ role, email });
         window.location.href = "./lms-class-management.html";
     });
 </script>

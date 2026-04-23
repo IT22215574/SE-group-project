@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LMS Admin | Class Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900">
+<div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-300/30 blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-cyan-300/30 blur-3xl"></div>
+</div>
+
+<main class="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
+    <header class="mb-8 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur md:p-8">
+        <p class="text-xs font-bold uppercase tracking-[0.3em] text-emerald-700">LMS Admin Panel</p>
+        <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 md:text-5xl">School Class and Subject Management</h1>
+        <p class="mt-3 max-w-2xl text-sm text-slate-600 md:text-base">Create classes, assign subjects, and maintain your academic structure in one place.</p>
+    </header>
+
+    <section class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div>
+                <h2 class="text-lg font-bold text-slate-950">Create / Update Subject</h2>
+                <p class="mt-1 text-sm text-slate-600">Add subjects first, then assign them to classes.</p>
+            </div>
+            <form id="subject-form" class="mt-5 space-y-4">
+                <input type="hidden" id="subject-id" />
+                <label class="block text-sm font-semibold text-slate-700">
+                    Subject Name
+                    <input id="subject-name" type="text" placeholder="e.g. Mathematics" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100" />
+                </label>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-500">Save Subject</button>
+                    <button type="button" id="subject-reset" class="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">Clear</button>
+                </div>
+            </form>
+            <div id="subject-list" class="mt-5 flex flex-wrap gap-2"></div>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div>
+                <h2 class="text-lg font-bold text-slate-950">Create / Update Class</h2>
+                <p class="mt-1 text-sm text-slate-600">Use this form for full class CRUD.</p>
+            </div>
+
+            <form id="class-form" class="mt-5 space-y-4">
+                <input type="hidden" id="class-id" />
+
+                <label class="block text-sm font-semibold text-slate-700">
+                    Class Name
+                    <input id="class-name" type="text" placeholder="e.g. Grade 10 - A" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100" />
+                </label>
+
+                <label class="block text-sm font-semibold text-slate-700">
+                    Grade
+                    <input id="class-grade" type="text" placeholder="e.g. 10" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100" />
+                </label>
+
+                <label class="block text-sm font-semibold text-slate-700">
+                    Academic Year
+                    <input id="class-year" type="text" placeholder="e.g. 2026" required class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100" />
+                </label>
+
+                <fieldset class="rounded-2xl border border-slate-200 p-4">
+                    <legend class="px-1 text-sm font-bold text-slate-700">Assign Subjects</legend>
+                    <div id="subject-checkboxes" class="mt-4 grid gap-3 sm:grid-cols-2"></div>
+                </fieldset>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500">Save Class</button>
+                    <button type="button" id="class-reset" class="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">Clear</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-bold text-slate-950">Existing Classes</h2>
+                <p class="mt-1 text-sm text-slate-600">Edit or delete any class record.</p>
+            </div>
+        </div>
+        <div class="mt-5 overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+                <thead class="border-b border-slate-200 text-slate-600">
+                <tr>
+                    <th class="px-3 py-3 font-semibold">Class Name</th>
+                    <th class="px-3 py-3 font-semibold">Grade</th>
+                    <th class="px-3 py-3 font-semibold">Academic Year</th>
+                    <th class="px-3 py-3 font-semibold">Subjects</th>
+                    <th class="px-3 py-3 font-semibold">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="class-table-body" class="divide-y divide-slate-200"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div id="toast" class="pointer-events-none fixed bottom-5 right-5 translate-y-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-medium text-white opacity-0 shadow-2xl transition-all duration-200"></div>
+
+<script src="/js/admin-classes.js"></script>
+</body>
+</html>
