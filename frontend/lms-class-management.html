@@ -22,7 +22,7 @@
                     <a href="#classes" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Classes</a>
                     <a href="#subjects" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Subjects</a>
                     <a href="#users" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Users</a>
-                    <a href="#exams" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Exams</a>
+                    <a href="#fees" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Fees</a>
                 </div>
                 <div class="flex items-center justify-center gap-3 md:col-start-3 md:justify-self-end">
                     <span class="hidden h-6 w-px bg-slate-200 md:block" aria-hidden="true"></span>
@@ -107,20 +107,141 @@
         </div>
     </section>
 
-    <section id="users" class="mt-6 hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Users</p>
-        <h2 class="mt-1 text-2xl font-bold text-slate-950">Users</h2>
-        <p class="mt-2 text-sm text-slate-500">User management is coming soon.</p>
+    <!-- ===== USER MANAGEMENT ===== -->
+    <section id="users" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+        <div id="user-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Users</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">User Form</h2>
+            <form id="user-form" class="mt-4 space-y-3">
+                <input id="user-id" type="hidden" />
+                <div>
+                    <label class="block text-sm font-medium">Full Name</label>
+                    <input id="user-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="John Doe" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Email</label>
+                    <input id="user-email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="john@example.com" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Role</label>
+                    <select id="user-role" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select role</option>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Phone</label>
+                    <input id="user-phone" class="w-full rounded-lg border border-slate-300 p-2" placeholder="+94 7X XXX XXXX" />
+                </div>
+                <div class="flex gap-2">
+                    <button class="rounded-lg bg-violet-600 px-4 py-2 text-white" type="submit">Save User</button>
+                    <button id="user-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Users</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">User List</h2>
+                </div>
+                <span class="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">Manage records</span>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Role</th>
+                        <th class="p-3">Phone</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="user-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </section>
 
-    <section id="exams" class="mt-6 hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-orange-700">Exams</p>
-        <h2 class="mt-1 text-2xl font-bold text-slate-950">Exams</h2>
-        <p class="mt-2 text-sm text-slate-500">Exam management is coming soon.</p>
+    <!-- ===== FEE MANAGEMENT ===== -->
+    <section id="fees" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+        <div id="fee-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-orange-700">Fees</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Fee Form</h2>
+            <form id="fee-form" class="mt-4 space-y-3">
+                <input id="fee-id" type="hidden" />
+                <div>
+                    <label class="block text-sm font-medium">User</label>
+                    <select id="fee-user" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select user</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Description</label>
+                    <input id="fee-description" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Term 1 Tuition Fee" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Amount (LKR)</label>
+                    <input id="fee-amount" type="number" step="0.01" min="0" class="w-full rounded-lg border border-slate-300 p-2" placeholder="15000" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Due Date</label>
+                    <input id="fee-due-date" type="date" class="w-full rounded-lg border border-slate-300 p-2" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Status</label>
+                    <select id="fee-status" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="PENDING">Pending</option>
+                        <option value="PAID">Paid</option>
+                        <option value="OVERDUE">Overdue</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button class="rounded-lg bg-orange-600 px-4 py-2 text-white" type="submit">Save Fee</button>
+                    <button id="fee-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-orange-50 to-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-orange-700">Fees</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Fee List</h2>
+                </div>
+                <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800">Manage records</span>
+            </div>
+            <div class="mt-3 mb-3">
+                <label class="block text-sm font-medium text-slate-600">Filter by User</label>
+                <select id="fee-filter-user" class="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm">
+                    <option value="">All Users</option>
+                </select>
+            </div>
+            <div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">User</th>
+                        <th class="p-3">Description</th>
+                        <th class="p-3">Amount</th>
+                        <th class="p-3">Due Date</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="fee-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </section>
 </div>
 
 <script src="./auth.js"></script>
 <script src="./lms-class-management.js"></script>
+<script src="./lms-user-fee-management.js"></script>
 </body>
 </html>
