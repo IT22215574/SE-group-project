@@ -20,7 +20,7 @@ const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
 const usersSection = document.getElementById("users");
-const examsSection = document.getElementById("exams");
+const feesSection = document.getElementById("fees");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
@@ -111,14 +111,14 @@ if (classFormCard && !canManageClasses) {
 }
 
 const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
-const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
+const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 
 if (currentRole !== "admin") {
     if (usersNavLink) {
         usersNavLink.classList.add("hidden");
     }
-    if (examsNavLink) {
-        examsNavLink.classList.add("hidden");
+    if (feesNavLink) {
+        feesNavLink.classList.add("hidden");
     }
 }
 
@@ -126,7 +126,7 @@ const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
     users: usersSection,
-    exams: examsSection
+    fees: feesSection
 };
 
 function pageFromHash() {
@@ -148,7 +148,7 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "exams"] : ["classes", "subjects"];
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "fees"] : ["classes", "subjects"];
     const page = pageFromHash();
 
     if (!page) {
