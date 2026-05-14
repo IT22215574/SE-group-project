@@ -1,6 +1,4 @@
-const API_BASE = (
-  window.localStorage.getItem("lmsApiBase") || "http://localhost:5001"
-).replace(/\/$/, "");
+const API_BASE = (window.localStorage.getItem("lmsApiBase") || "http://localhost:5001").replace(/\/$/, "");
 
 const subjectForm = document.getElementById("subject-form");
 const subjectIdInput = document.getElementById("subject-id");
@@ -37,8 +35,6 @@ const usersSection = document.getElementById("users");
 const attendanceSection = document.getElementById("attendance");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
-const resultsSection = document.getElementById("results");
-const notificationsSection = document.getElementById("notifications");
 const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
@@ -51,67 +47,58 @@ const subjectRowsPerPage = 5;
 const currentAuth = typeof requireAuth === "function" ? requireAuth() : null;
 
 if (!currentAuth) {
-  window.location.href = "./login.html";
+    window.location.href = "./login.html";
 }
 
 function setActiveNavLinkFromHash() {
-  if (!navLinks.length) {
-    return;
-  }
-
-  const available = new Set(navLinks.map((link) => link.getAttribute("href")));
-  const hash =
-    window.location.hash && available.has(window.location.hash)
-      ? window.location.hash
-      : null;
-
-  navLinks.forEach((link) => {
-    const href = link.getAttribute("href");
-    const isActive = Boolean(hash) && href === hash;
-    link.classList.toggle("text-blue-600", isActive);
-    link.classList.toggle("text-slate-900", !isActive);
-    if (isActive) {
-      link.setAttribute("aria-current", "page");
-    } else {
-      link.removeAttribute("aria-current");
+    if (!navLinks.length) {
+        return;
     }
-  });
+
+    const available = new Set(navLinks.map((link) => link.getAttribute("href")));
+    const hash = window.location.hash && available.has(window.location.hash) ? window.location.hash : null;
+
+    navLinks.forEach((link) => {
+        const href = link.getAttribute("href");
+        const isActive = Boolean(hash) && href === hash;
+        link.classList.toggle("text-blue-600", isActive);
+        link.classList.toggle("text-slate-900", !isActive);
+        if (isActive) {
+            link.setAttribute("aria-current", "page");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
 }
 
 navLinks.forEach((link) => {
-  link.addEventListener("click", () => {
-    setTimeout(setActiveNavLinkFromHash, 0);
-  });
+    link.addEventListener("click", () => {
+        setTimeout(setActiveNavLinkFromHash, 0);
+    });
 });
 
 window.addEventListener("hashchange", setActiveNavLinkFromHash);
 setActiveNavLinkFromHash();
 
 const currentRole = currentAuth ? currentAuth.role : "visitor";
-const canManageSubjects =
-  typeof roleCanManageSubjects === "function"
-    ? roleCanManageSubjects(currentRole)
-    : false;
-const canManageClasses =
-  typeof roleCanManageClasses === "function"
-    ? roleCanManageClasses(currentRole)
-    : false;
+const canManageSubjects = typeof roleCanManageSubjects === "function" ? roleCanManageSubjects(currentRole) : false;
+const canManageClasses = typeof roleCanManageClasses === "function" ? roleCanManageClasses(currentRole) : false;
 
 if (sessionBadge && currentAuth) {
-  sessionBadge.textContent = `${roleLabel(currentRole)}: ${currentAuth.email}`;
+    sessionBadge.textContent = `${roleLabel(currentRole)}: ${currentAuth.email}`;
 }
 
 if (logoutButton) {
-  logoutButton.addEventListener("click", () => {
-    const confirmed = window.confirm("Are you sure you want to log out?");
-    if (!confirmed) {
-      return;
-    }
-    if (typeof clearAuthState === "function") {
-      clearAuthState();
-    }
-    window.location.href = "./login.html";
-  });
+    logoutButton.addEventListener("click", () => {
+        const confirmed = window.confirm("Are you sure you want to log out?");
+        if (!confirmed) {
+            return;
+        }
+        if (typeof clearAuthState === "function") {
+            clearAuthState();
+        }
+        window.location.href = "./login.html";
+    });
 }
 
 if (authWarning) {
@@ -125,21 +112,21 @@ if (authWarning) {
 }
 
 if (subjectFormCard && !canManageSubjects) {
-  subjectFormCard.querySelectorAll("input, button").forEach((element) => {
-    if (element.id !== "subject-reset") {
-      element.disabled = true;
-    }
-  });
-  subjectFormCard.classList.add("opacity-75");
+    subjectFormCard.querySelectorAll("input, button").forEach((element) => {
+        if (element.id !== "subject-reset") {
+            element.disabled = true;
+        }
+    });
+    subjectFormCard.classList.add("opacity-75");
 }
 
 if (classFormCard && !canManageClasses) {
-  classFormCard.querySelectorAll("input, button").forEach((element) => {
-    if (element.id !== "class-reset") {
-      element.disabled = true;
-    }
-  });
-  classFormCard.classList.add("opacity-75");
+    classFormCard.querySelectorAll("input, button").forEach((element) => {
+        if (element.id !== "class-reset") {
+            element.disabled = true;
+        }
+    });
+    classFormCard.classList.add("opacity-75");
 }
 
 if (subjectAssignmentModal && !canManageClasses) {
@@ -158,11 +145,21 @@ const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
 
 if (currentRole !== "admin") {
-    if (usersNavLink) usersNavLink.classList.add("hidden");
-    if (attendanceNavLink) attendanceNavLink.classList.add("hidden");
-    if (teachersNavLink) teachersNavLink.classList.add("hidden");
-    if (feesNavLink) feesNavLink.classList.add("hidden");
-    if (examsNavLink) examsNavLink.classList.add("hidden");
+    if (usersNavLink) {
+        usersNavLink.classList.add("hidden");
+    }
+    if (attendanceNavLink) {
+        attendanceNavLink.classList.add("hidden");
+    }
+    if (teachersNavLink) {
+        teachersNavLink.classList.add("hidden");
+    }
+    if (feesNavLink) {
+        feesNavLink.classList.add("hidden");
+    }
+    if (examsNavLink) {
+        examsNavLink.classList.add("hidden");
+    }
 }
 
 const pageSections = {
@@ -172,78 +169,71 @@ const pageSections = {
     attendance: attendanceSection,
     teachers: teachersSection,
     fees: feesSection,
-    results: resultsSection,
-    exams: examsSection,
-    notifications: notificationsSection
+    exams: examsSection
 };
 
 function pageFromHash() {
-  const hash = window.location.hash || "";
-  return hash.startsWith("#") ? hash.slice(1) : hash;
+    const hash = window.location.hash || "";
+    return hash.startsWith("#") ? hash.slice(1) : hash;
 }
 
 function showOnlyPage(page) {
-  Object.values(pageSections).forEach((section) => {
-    if (section) {
-      section.classList.add("hidden");
-    }
-  });
+    Object.values(pageSections).forEach((section) => {
+        if (section) {
+            section.classList.add("hidden");
+        }
+    });
 
-  const target = pageSections[page];
-  if (target) {
-    target.classList.remove("hidden");
-  }
+    const target = pageSections[page];
+    if (target) {
+        target.classList.remove("hidden");
+    }
 }
 
 function syncPageFromHash() {
-    // non-admin: can see classes, subjects, results, notifications
-    // admin: can see everything including users, attendance, teachers, fees, exams
-    let allowedPages = ["classes", "subjects", "results", "notifications"];
-    if (currentRole === "admin") {
-        allowedPages = ["classes", "subjects", "users", "attendance", "teachers", "fees", "results", "exams", "notifications"];
-    }
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "attendance", "teachers", "fees", "exams"] : ["classes", "subjects"];
     const page = pageFromHash();
 
-  if (!page) {
-    window.location.hash = "#classes";
-    return;
-  }
+    if (!page) {
+        window.location.hash = "#classes";
+        return;
+    }
 
-  if (!allowedPages.includes(page)) {
-    window.location.hash = "#classes";
-    return;
-  }
+    if (!allowedPages.includes(page)) {
+        window.location.hash = "#classes";
+        return;
+    }
 
-  showOnlyPage(page);
+    showOnlyPage(page);
 }
 
 window.addEventListener("hashchange", syncPageFromHash);
 syncPageFromHash();
 
 async function requestJson(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+    const response = await fetch(`${API_BASE}${path}`, {
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        },
+        ...options
+    });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Request failed");
-  }
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Request failed");
+    }
 
-  if (response.status === 204) {
-    return null;
-  }
+    if (response.status === 204) {
+        return null;
+    }
 
-  return response.json();
+    return response.json();
 }
 
 function resetSubjectForm() {
-  subjectIdInput.value = "";
-  subjectNameInput.value = "";
+    subjectIdInput.value = "";
+    subjectNameInput.value = "";
 }
 
 function resetClassForm() {
@@ -585,27 +575,18 @@ function renderClasses() {
         ? schoolClasses.filter((schoolClass) => String(schoolClass.grade).trim() === filterGrade)
         : schoolClasses;
 
-    const sortedClasses = [...visibleClasses].sort((a, b) => {
-        const gradeA = parseInt(a.grade, 10);
-        const gradeB = parseInt(b.grade, 10);
-        if (gradeA !== gradeB) {
-            return gradeA - gradeB;
-        }
-        return a.className.localeCompare(b.className, undefined, { sensitivity: "base" });
-    });
-
-    sortedClasses.forEach((schoolClass) => {
+    visibleClasses.forEach((schoolClass) => {
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200";
         row.innerHTML = `
             <td class="p-2">${schoolClass.className}</td>
             <td class="p-2">${schoolClass.grade}</td>
             <td class="p-2">${schoolClass.academicYear}</td>
-            <td class="p-2 pr-24">${schoolClass.notes || ""}</td>
-            <td class="p-2 pl-0"></td>
+            <td class="p-2" data-role="actions"></td>
+            <td class="p-2 text-slate-600">${schoolClass.notes || ""}</td>
         `;
 
-        const actionsCell = row.querySelector("td:last-child");
+        const actionsCell = row.querySelector("td[data-role=\"actions\"]");
 
         const editButton = document.createElement("button");
         editButton.type = "button";
@@ -622,44 +603,37 @@ function renderClasses() {
             updateClassName();
         });
 
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className =
-      "rounded-lg bg-red-600 px-3 py-1 text-xs text-white";
-    deleteButton.textContent = "Delete";
-    deleteButton.disabled = !canManageClasses;
-    deleteButton.addEventListener("click", async () => {
-      if (
-        !window.confirm(
-          `Are you sure you want to delete class "${schoolClass.className}"?`,
-        )
-      ) {
-        return;
-      }
-      try {
-        await requestJson(`/api/admin/classes/${schoolClass.id}`, {
-          method: "DELETE",
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "rounded-lg bg-red-600 px-3 py-1 text-xs text-white";
+        deleteButton.textContent = "Delete";
+        deleteButton.disabled = !canManageClasses;
+        deleteButton.addEventListener("click", async () => {
+            if (!window.confirm(`Are you sure you want to delete class "${schoolClass.className}"?`)) {
+                return;
+            }
+            try {
+                await requestJson(`/api/admin/classes/${schoolClass.id}`, { method: "DELETE" });
+                await refreshAll();
+                window.alert("Class deleted successfully!");
+            } catch (error) {
+                window.alert(`Failed to delete class: ${error.message}`);
+            }
         });
-        await refreshAll();
-        window.alert("Class deleted successfully!");
-      } catch (error) {
-        window.alert(`Failed to delete class: ${error.message}`);
-      }
-    });
 
-    actionsCell.append(editButton, deleteButton);
-    classTableBody.appendChild(row);
-  });
+        actionsCell.append(editButton, deleteButton);
+        classTableBody.appendChild(row);
+    });
 }
 
 async function refreshAll() {
-  const [subjectData, classData] = await Promise.all([
-    requestJson("/api/admin/subjects"),
-    requestJson("/api/admin/classes"),
-  ]);
+    const [subjectData, classData] = await Promise.all([
+        requestJson("/api/admin/subjects"),
+        requestJson("/api/admin/classes")
+    ]);
 
-  subjects = subjectData;
-  schoolClasses = classData;
+    subjects = subjectData;
+    schoolClasses = classData;
 
     renderSubjects();
     renderClasses();
@@ -678,46 +652,46 @@ async function refreshAll() {
 }
 
 subjectForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!canManageSubjects) {
-    return;
-  }
-
-  const id = subjectIdInput.value.trim();
-  const name = subjectNameInput.value.trim();
-
-  if (!name) {
-    window.alert("Subject name cannot be empty.");
-    return;
-  }
-
-  if (!/^[A-Za-z\s]+$/.test(name)) {
-    window.alert("Subject name can only contain letters.");
-    return;
-  }
-
-  const payload = { name };
-
-  try {
-    if (id) {
-      await requestJson(`/api/admin/subjects/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-      window.alert("Subject updated successfully!");
-    } else {
-      await requestJson("/api/admin/subjects", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      window.alert("Subject created successfully!");
+    event.preventDefault();
+    if (!canManageSubjects) {
+        return;
     }
 
-    resetSubjectForm();
-    await refreshAll();
-  } catch (error) {
-    window.alert(`Failed to save subject: ${error.message}`);
-  }
+    const id = subjectIdInput.value.trim();
+    const name = subjectNameInput.value.trim();
+
+    if (!name) {
+        window.alert("Subject name cannot be empty.");
+        return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+        window.alert("Subject name can only contain letters.");
+        return;
+    }
+
+    const payload = { name };
+
+    try {
+        if (id) {
+            await requestJson(`/api/admin/subjects/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject updated successfully!");
+        } else {
+            await requestJson("/api/admin/subjects", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subject created successfully!");
+        }
+
+        resetSubjectForm();
+        await refreshAll();
+    } catch (error) {
+        window.alert(`Failed to save subject: ${error.message}`);
+    }
 });
 
 classForm.addEventListener("submit", async (event) => {
@@ -883,5 +857,5 @@ if (classGradeFilter) {
 }
 
 refreshAll().catch((error) => {
-  window.alert(`Failed to load data: ${error.message}`);
+    window.alert(`Failed to load data: ${error.message}`);
 });
