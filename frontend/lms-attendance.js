@@ -267,42 +267,49 @@ attReportBtn.addEventListener("click", async () => {
     }
 });
 
-// Download CSV Data
+// Download PDF Data
 if (attDownloadReportBtn) {
     attDownloadReportBtn.addEventListener("click", () => {
         if (!currentReportData || !currentReportData.students) return;
 
-        const csvRows = [];
-        // Headers
-        csvRows.push(['Student Name', 'Present', 'Absent', 'Late', 'Attendance %'].join(','));
-        
-        // Data format
-        currentReportData.students.forEach(s => {
-            csvRows.push([
-                `"${s.studentName}"`, 
-                s.presentCount, 
-                s.absentCount, 
-                s.lateCount, 
-                `${s.attendancePercentage}%`
-            ].join(','));
-        });
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text("Class Attendance Report", 14, 22);
+            
+            doc.setFontSize(11);
+            doc.text(`Class: ${currentReportData.className}`, 14, 30);
+            doc.text(`Total Students: ${currentReportData.totalStudents}`, 14, 36);
+            doc.text(`Total Days Recorded: ${currentReportData.totalDays}`, 14, 42);
 
-        // Summary properties
-        csvRows.push([]);
-        csvRows.push([`"Class"`, `"${currentReportData.className}"`].join(','));
-        csvRows.push(['Total Students', currentReportData.totalStudents].join(','));
-        csvRows.push(['Total Days Recorded', currentReportData.totalDays].join(','));
+            const tableColumn = ["Student Name", "Present", "Absent", "Late", "Attendance %"];
+            const tableRows = [];
 
-        const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-        const encodedUri = encodeURI(csvContent);
-        
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `attendance_report_${currentReportData.className.replace(/\s+/g, '_')}.csv`);
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            currentReportData.students.forEach(s => {
+                tableRows.push([
+                    s.studentName,
+                    s.presentCount,
+                    s.absentCount,
+                    s.lateCount,
+                    `${s.attendancePercentage}%`
+                ]);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 48,
+                theme: 'striped',
+                headStyles: { fillColor: [13, 148, 136] } // teal-600
+            });
+
+            doc.save(`attendance_report_${currentReportData.className.replace(/\s+/g, '_')}.pdf`);
+        } catch (e) {
+            console.error(e);
+            alert("Failed to generate PDF. Check console for details.");
+        }
     });
 }
 
