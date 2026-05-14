@@ -19,9 +19,11 @@ const attReportContent = document.getElementById("att-report-content");
 const attReportDays = document.getElementById("att-report-days");
 const attReportStudents = document.getElementById("att-report-students");
 const attReportTableBody = document.getElementById("att-report-table-body");
+const attDownloadReportBtn = document.getElementById("att-download-report-btn");
 
 let currentAttendanceId = null;
 let currentStudents = [];
+let currentReportData = null;
 let attendanceInitialised = false;
 
 // Load classes on init
@@ -35,10 +37,10 @@ async function initAttendance() {
             opt.textContent = c.className + (c.grade ? " (Grade " + c.grade + ")" : "");
             attClassSelect.appendChild(opt);
         });
-        
-        // Default to today
+        // Default to today and restrict future dates
         const today = new Date().toISOString().split('T')[0];
         attDateInput.value = today;
+        attDateInput.max = today;
     } catch (err) {
         console.error("Failed to load classes for attendance:", err);
     }
@@ -50,6 +52,10 @@ window.addEventListener("hashchange", () => {
         if (attClassSelect.options.length <= 1) {
             initAttendance();
         }
+    } else {
+        if (attDownloadReportBtn) attDownloadReportBtn.classList.add("hidden");
+        attReportContent.classList.add("hidden");
+        currentReportData = null;
     }
 });
 
@@ -91,6 +97,8 @@ attLoadBtn.addEventListener("click", async () => {
         attFormWrapper.classList.remove("hidden");
         attReportWrapper.classList.remove("hidden");
         attReportContent.classList.add("hidden"); // hide report content until explicitly generated
+        if (attDownloadReportBtn) attDownloadReportBtn.classList.add("hidden");
+        currentReportData = null;
         
     } catch (err) {
         alert("Error loading attendance: " + err.message);
@@ -251,12 +259,52 @@ attReportBtn.addEventListener("click", async () => {
             `;
             attReportTableBody.appendChild(row);
         });
-        
         attReportContent.classList.remove("hidden");
+        currentReportData = report;
+        if (attDownloadReportBtn) attDownloadReportBtn.classList.remove("hidden");
     } catch (err) {
         alert("Failed to load report: " + err.message);
     }
 });
+
+// Download CSV Data
+if (attDownloadReportBtn) {
+    attDownloadReportBtn.addEventListener("click", () => {
+        if (!currentReportData || !currentReportData.students) return;
+
+        const csvRows = [];
+        // Headers
+        csvRows.push(['Student Name', 'Present', 'Absent', 'Late', 'Attendance %'].join(','));
+        
+        // Data format
+        currentReportData.students.forEach(s => {
+            csvRows.push([
+                `"${s.studentName}"`, 
+                s.presentCount, 
+                s.absentCount, 
+                s.lateCount, 
+                `${s.attendancePercentage}%`
+            ].join(','));
+        });
+
+        // Summary properties
+        csvRows.push([]);
+        csvRows.push([`"Class"`, `"${currentReportData.className}"`].join(','));
+        csvRows.push(['Total Students', currentReportData.totalStudents].join(','));
+        csvRows.push(['Total Days Recorded', currentReportData.totalDays].join(','));
+
+        const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+        const encodedUri = encodeURI(csvContent);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `attendance_report_${currentReportData.className.replace(/\s+/g, '_')}.csv`);
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
 
 // Always initialise on load (only populate select once).
 // The hashchange listener also handles navigating to the tab later.

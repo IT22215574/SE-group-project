@@ -1,27 +1,11 @@
-const API_BASE = (localStorage.getItem("lmsApiBase") || "http://localhost:5001").replace(/\/$/, "");
+// Relies on API_BASE and requestJson from lms-class-management.js
 
 const form = document.getElementById("student-form");
 const tableBody = document.getElementById("student-table-body");
-const resetBtn = document.getElementById("reset-btn");
-const searchInput = document.getElementById("search");
-const searchBtn = document.getElementById("search-btn");
-const classSelect = document.getElementById("class-id");
-
-async function requestJson(url, options = {}) {
-  const response = await fetch(`${API_BASE}${url}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Request failed");
-  }
-
-  if (response.status === 204) return null;
-  return response.json();
-}
-
+const resetBtn = document.getElementById("student-reset");
+const searchInput = document.getElementById("search") || document.createElement("input"); // prevent crashes
+const searchBtn = document.getElementById("search-btn") || document.createElement("button"); // prevent crashes
+const classSelect = document.getElementById("student-class");
 function getFormData() {
   return {
     admissionNo: document.getElementById("admission-no").value.trim(),
