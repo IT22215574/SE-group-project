@@ -127,7 +127,8 @@ const pageSections = {
     subjects: document.getElementById("subjects"),
     users: usersSection,
     fees: feesSection,
-    attendance: document.getElementById("attendance")
+    attendance: document.getElementById("attendance"),
+    students: document.getElementById("students")
 };
 
 function pageFromHash() {
@@ -150,8 +151,8 @@ function showOnlyPage(page) {
 
 function syncPageFromHash() {
     const allowedPages = currentRole === "admin" 
-        ? ["classes", "subjects", "users", "fees", "attendance"] 
-        : ["classes", "subjects", "attendance"];
+        ? ["classes", "subjects", "users", "fees", "attendance", "students"] 
+        : ["classes", "subjects", "attendance", "students"];
     const page = pageFromHash();
 
     if (!page) {

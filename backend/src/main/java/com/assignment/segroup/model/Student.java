@@ -14,13 +14,15 @@ public class Student {
     @Id
     private String id;
 
+    private String name;
+
     public String getName() {
         if (firstName != null && lastName != null) {
             return firstName + " " + lastName;
         }
         if (firstName != null) return firstName;
         if (lastName != null) return lastName;
-        return "";
+        return name != null ? name : "";
     }
 
     public void setName(String name) {
@@ -82,6 +84,10 @@ public class Student {
     }
 
     public String getFirstName() {
+        if (firstName != null && !firstName.isBlank()) return firstName;
+        if (name != null && !name.isBlank()) {
+            return name.split(" ", 2)[0];
+        }
         return firstName;
     }
 
@@ -90,6 +96,11 @@ public class Student {
     }
 
     public String getLastName() {
+        if (lastName != null && !lastName.isBlank()) return lastName;
+        if (name != null && !name.isBlank()) {
+            String[] parts = name.split(" ", 2);
+            return parts.length > 1 ? parts[1] : "";
+        }
         return lastName;
     }
 
