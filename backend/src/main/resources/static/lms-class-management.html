@@ -6,8 +6,8 @@
     <title>Royal Crest Academy | Class Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
-<div class="mx-auto max-w-7xl p-4 md:p-8">
+<body class="min-h-screen bg-white p-2 text-slate-900 md:p-4">
+<div class="mx-auto max-w-7xl rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-lg md:p-8">
     <nav class="mb-8 rounded-3xl border border-slate-200 bg-white px-5 py-4 text-slate-900 shadow-sm">
         <!-- Top row: logo + hamburger toggle -->
         <div class="flex items-center justify-between gap-3">
@@ -268,10 +268,57 @@
 
     <!-- ===== EXAM MANAGEMENT ===== -->
     <section id="exams" class="mt-6 hidden">
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
-            <h2 class="mt-1 text-xl font-bold text-slate-950">Exams</h2>
-            <p class="mt-2 text-sm text-slate-600">Manage exams and results here.</p>
+        <div class="space-y-6">
+            <div id="exam-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+                <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Form</h2>
+                <form id="exam-form" class="mt-4 space-y-3">
+                    <input id="exam-id" type="hidden" />
+                    <div>
+                        <label class="block text-sm font-medium">Exam Name</label>
+                        <input id="exam-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mid Term Examination" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Subject Name</label>
+                        <input id="exam-subject" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mathematics" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Exam Date</label>
+                        <input id="exam-date" type="date" class="w-full rounded-lg border border-slate-300 p-2" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Total Marks</label>
+                        <input id="exam-total-marks" type="number" min="1" class="w-full rounded-lg border border-slate-300 p-2" placeholder="100" required />
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="rounded-lg bg-rose-600 px-4 py-2 text-white" type="submit">Save Exam</button>
+                        <button id="exam-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                    </div>
+                </form>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+                        <h2 class="mt-1 text-xl font-bold text-slate-950">Exam List</h2>
+                    </div>
+                    <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">Manage records</span>
+                </div>
+                <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                    <table class="min-w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                                <th class="p-3">Exam Name</th>
+                                <th class="p-3">Subject</th>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Total Marks</th>
+                                <th class="p-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -374,6 +421,91 @@
                 }
             });
         });
+    })();
+</script>
+<script>
+    (function () {
+        const EXAM_KEY = "lms_exams";
+        function loadExams() {
+            try { return JSON.parse(localStorage.getItem(EXAM_KEY) || "[]"); } catch (e) { return []; }
+        }
+        function saveExams(list) { localStorage.setItem(EXAM_KEY, JSON.stringify(list)); }
+        function renderExams() {
+            const tbody = document.getElementById("exam-table-body");
+            if (!tbody) return;
+            const list = loadExams();
+            tbody.innerHTML = "";
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">No exams created yet.</td></tr>';
+                return;
+            }
+            list.forEach(function (exam, idx) {
+                const tr = document.createElement("tr");
+                tr.className = "border-b border-slate-200";
+                tr.innerHTML =
+                    '<td class="p-3 font-medium">' + exam.examName + "</td>" +
+                    '<td class="p-3 text-slate-600">' + exam.subjectName + "</td>" +
+                    '<td class="p-3 text-slate-600">' + exam.examDate + "</td>" +
+                    '<td class="p-3 text-slate-600">' + exam.totalMarks + "</td>" +
+                    '<td class="p-3"></td>';
+                const cell = tr.querySelector("td:last-child");
+                const editBtn = document.createElement("button");
+                editBtn.type = "button";
+                editBtn.className = "mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs";
+                editBtn.textContent = "Edit";
+                editBtn.onclick = function () {
+                    document.getElementById("exam-id").value = idx;
+                    document.getElementById("exam-name").value = exam.examName;
+                    document.getElementById("exam-subject").value = exam.subjectName;
+                    document.getElementById("exam-date").value = exam.examDate;
+                    document.getElementById("exam-total-marks").value = exam.totalMarks;
+                };
+                const delBtn = document.createElement("button");
+                delBtn.type = "button";
+                delBtn.className = "rounded-lg bg-red-600 px-3 py-1 text-xs text-white";
+                delBtn.textContent = "Delete";
+                delBtn.onclick = function () {
+                    if (!confirm('Delete exam "' + exam.examName + '"?')) return;
+                    const updated = loadExams();
+                    updated.splice(idx, 1);
+                    saveExams(updated);
+                    renderExams();
+                };
+                cell.appendChild(editBtn);
+                cell.appendChild(delBtn);
+                tbody.appendChild(tr);
+            });
+        }
+        const form = document.getElementById("exam-form");
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const idVal = document.getElementById("exam-id").value.trim();
+                const examName = document.getElementById("exam-name").value.trim();
+                const subjectName = document.getElementById("exam-subject").value.trim();
+                const examDate = document.getElementById("exam-date").value;
+                const totalMarks = parseInt(document.getElementById("exam-total-marks").value, 10);
+                if (!examName || !subjectName || !examDate || isNaN(totalMarks) || totalMarks < 1) {
+                    alert("All fields are required and Total Marks must be at least 1.");
+                    return;
+                }
+                const list = loadExams();
+                const record = { examName: examName, subjectName: subjectName, examDate: examDate, totalMarks: totalMarks };
+                if (idVal !== "") { list[parseInt(idVal, 10)] = record; } else { list.push(record); }
+                saveExams(list);
+                form.reset();
+                document.getElementById("exam-id").value = "";
+                renderExams();
+            });
+        }
+        const resetBtn = document.getElementById("exam-reset");
+        if (resetBtn) {
+            resetBtn.addEventListener("click", function () {
+                if (form) form.reset();
+                document.getElementById("exam-id").value = "";
+            });
+        }
+        renderExams();
     })();
 </script>
 </body>
