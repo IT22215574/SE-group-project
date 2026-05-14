@@ -12,7 +12,7 @@ public class User {
 
     private String name;
 
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     private String email;
 
     private String role; // e.g. student, teacher, admin
