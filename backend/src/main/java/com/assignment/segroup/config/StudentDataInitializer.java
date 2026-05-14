@@ -24,6 +24,9 @@ public class StudentDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (!Boolean.parseBoolean(System.getProperty("seed.demo.students", "false"))) {
+            return;
+        }
         if (studentRepository.count() > 0) {
             return;
         }

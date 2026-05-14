@@ -674,6 +674,8 @@ async function refreshAll() {
     } else {
         renderAssignmentSubjectOptions([]);
     }
+
+    window.dispatchEvent(new CustomEvent("classes:updated", { detail: schoolClasses }));
 }
 
 subjectForm.addEventListener("submit", async (event) => {

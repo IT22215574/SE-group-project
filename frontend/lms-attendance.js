@@ -77,7 +77,7 @@ attLoadBtn.addEventListener("click", async () => {
         const attResponse = await requestJson(`/api/attendance?classId=${classId}&date=${date}`);
         
         // 2. Fetch students for this class
-        const students = await requestJson(`/api/admin/students?classId=${encodeURIComponent(classId)}`);
+        const students = await requestJson(`/api/admin/users?role=student&classId=${encodeURIComponent(classId)}`);
         if (!students || students.length === 0) {
             alert("No students found in this class.");
             return;
