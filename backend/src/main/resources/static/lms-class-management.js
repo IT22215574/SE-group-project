@@ -4,7 +4,9 @@ const subjectForm = document.getElementById("subject-form");
 const subjectIdInput = document.getElementById("subject-id");
 const subjectNameInput = document.getElementById("subject-name");
 const subjectResetButton = document.getElementById("subject-reset");
-const subjectList = document.getElementById("subject-list");
+const subjectTableBody = document.getElementById("subject-table-body");
+const subjectClassTableBody = document.getElementById("subject-class-table-body");
+const subjectPagination = document.getElementById("subject-pagination");
 
 const classForm = document.getElementById("class-form");
 const classIdInput = document.getElementById("class-id");
@@ -26,6 +28,10 @@ const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
 let schoolClasses = [];
+let subjectMenuListenerBound = false;
+let subjectPage = 1;
+const subjectsPerRow = 5;
+const subjectRowsPerPage = 5;
 const currentAuth = typeof requireAuth === "function" ? requireAuth() : null;
 
 if (!currentAuth) {
@@ -206,21 +212,203 @@ function resetClassForm() {
     classYearInput.value = "";
 }
 
+function closeAllSubjectMenus() {
+    document.querySelectorAll(".subject-actions-menu").forEach((menu) => {
+        menu.classList.add("hidden");
+        menu.style.top = "";
+        menu.style.left = "";
+        menu.style.visibility = "";
+    });
+}
+
+function ensureSubjectMenuCloseHandler() {
+    if (subjectMenuListenerBound) {
+        return;
+    }
+
+    document.addEventListener("click", closeAllSubjectMenus);
+    subjectMenuListenerBound = true;
+}
+
+function createSubjectCell(subject) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm";
+
+    const name = document.createElement("div");
+    name.className = "text-xs font-semibold text-slate-800";
+    name.textContent = subject.name;
+
+    const actions = document.createElement("div");
+    actions.className = "relative";
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-xs text-slate-600 transition hover:bg-slate-50";
+    toggle.textContent = "...";
+    toggle.setAttribute("aria-label", "Subject actions");
+    toggle.disabled = !canManageSubjects;
+    if (!canManageSubjects) {
+        toggle.classList.add("opacity-50");
+    }
+
+    const menu = document.createElement("div");
+    menu.className = "subject-actions-menu fixed z-50 w-28 rounded-lg border border-slate-200 bg-white p-1 text-xs shadow-lg hidden";
+
+    const editAction = document.createElement("button");
+    editAction.type = "button";
+    editAction.className = "w-full rounded-md px-2 py-1 text-left text-slate-700 hover:bg-slate-100";
+    editAction.textContent = "Edit";
+    editAction.disabled = !canManageSubjects;
+    editAction.addEventListener("click", () => {
+        subjectIdInput.value = String(subject.id);
+        subjectNameInput.value = subject.name;
+        closeAllSubjectMenus();
+    });
+
+    const deleteAction = document.createElement("button");
+    deleteAction.type = "button";
+    deleteAction.className = "w-full rounded-md px-2 py-1 text-left text-red-600 hover:bg-red-50";
+    deleteAction.textContent = "Delete";
+    deleteAction.disabled = !canManageSubjects;
+    deleteAction.addEventListener("click", async () => {
+        if (!window.confirm(`Delete subject "${subject.name}"?`)) {
+            return;
+        }
+        try {
+            await requestJson(`/api/admin/subjects/${subject.id}`, { method: "DELETE" });
+            await refreshAll();
+            window.alert("Subject deleted successfully!");
+        } catch (error) {
+            window.alert(`Failed to delete subject: ${error.message}`);
+        }
+        closeAllSubjectMenus();
+    });
+
+    menu.append(editAction, deleteAction);
+    actions.append(toggle, menu);
+    wrapper.append(name, actions);
+
+    toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isHidden = menu.classList.contains("hidden");
+        closeAllSubjectMenus();
+        if (isHidden) {
+            const toggleRect = toggle.getBoundingClientRect();
+            menu.classList.remove("hidden");
+            menu.style.visibility = "hidden";
+            requestAnimationFrame(() => {
+                const menuRect = menu.getBoundingClientRect();
+                const top = Math.max(8, toggleRect.top - menuRect.height - 8);
+                const left = Math.max(8, toggleRect.right - menuRect.width);
+                menu.style.top = `${top}px`;
+                menu.style.left = `${left}px`;
+                menu.style.visibility = "visible";
+            });
+        }
+    });
+
+    return wrapper;
+}
+
 function renderSubjects() {
-    subjectList.innerHTML = "";
+    if (!subjectTableBody) {
+        return;
+    }
 
-    subjects.forEach((subject) => {
-        const chip = document.createElement("button");
-        chip.type = "button";
-        chip.className = "rounded-full border border-slate-300 px-3 py-1 text-xs";
-        chip.textContent = `Edit ${subject.name}`;
-        chip.disabled = !canManageSubjects;
-        chip.addEventListener("click", () => {
-            subjectIdInput.value = String(subject.id);
-            subjectNameInput.value = subject.name;
+    subjectTableBody.innerHTML = "";
+    ensureSubjectMenuCloseHandler();
+
+    if (subjects.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = "<td class=\"p-3 text-sm text-slate-500\" colspan=\"5\">No subjects created yet.</td>";
+        subjectTableBody.appendChild(row);
+        renderSubjectPagination(1);
+        return;
+    }
+
+    const subjectsPerPage = subjectsPerRow * subjectRowsPerPage;
+    const totalPages = Math.max(1, Math.ceil(subjects.length / subjectsPerPage));
+    if (subjectPage > totalPages) {
+        subjectPage = totalPages;
+    }
+
+    const startIndex = (subjectPage - 1) * subjectsPerPage;
+    const pageSubjects = subjects.slice(startIndex, startIndex + subjectsPerPage);
+
+    for (let i = 0; i < pageSubjects.length; i += subjectsPerRow) {
+        const row = document.createElement("tr");
+        row.className = "border-b border-slate-200";
+        const chunk = pageSubjects.slice(i, i + subjectsPerRow);
+
+        chunk.forEach((subject) => {
+            const cell = document.createElement("td");
+            cell.className = "p-2 align-top overflow-visible";
+            cell.appendChild(createSubjectCell(subject));
+            row.appendChild(cell);
         });
-        subjectList.appendChild(chip);
 
+        for (let j = chunk.length; j < subjectsPerRow; j += 1) {
+            const emptyCell = document.createElement("td");
+            emptyCell.className = "p-2";
+            row.appendChild(emptyCell);
+        }
+
+        subjectTableBody.appendChild(row);
+    }
+
+    renderSubjectPagination(totalPages);
+}
+
+function renderSubjectPagination(totalPages) {
+    if (!subjectPagination) {
+        return;
+    }
+
+    subjectPagination.innerHTML = "";
+
+    if (totalPages <= 1) {
+        return;
+    }
+
+    for (let page = 1; page <= totalPages; page += 1) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "rounded-lg border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-50";
+        if (page === subjectPage) {
+            button.classList.add("bg-emerald-600", "text-white", "border-emerald-600");
+        }
+        button.textContent = String(page);
+        button.addEventListener("click", () => {
+            subjectPage = page;
+            renderSubjects();
+        });
+        subjectPagination.appendChild(button);
+    }
+}
+
+function renderSubjectPageClasses() {
+    if (!subjectClassTableBody) {
+        return;
+    }
+
+    subjectClassTableBody.innerHTML = "";
+
+    if (schoolClasses.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = "<td class=\"p-3 text-sm text-slate-500\" colspan=\"3\">No classes created yet.</td>";
+        subjectClassTableBody.appendChild(row);
+        return;
+    }
+
+    schoolClasses.forEach((schoolClass) => {
+        const row = document.createElement("tr");
+        row.className = "border-b border-slate-200";
+        row.innerHTML = `
+            <td class="p-3">${schoolClass.className}</td>
+            <td class="p-3">${schoolClass.grade}</td>
+            <td class="p-3">${schoolClass.academicYear}</td>
+        `;
+        subjectClassTableBody.appendChild(row);
     });
 }
 
@@ -289,6 +477,7 @@ async function refreshAll() {
 
     renderSubjects();
     renderClasses();
+    renderSubjectPageClasses();
 }
 
 subjectForm.addEventListener("submit", async (event) => {
