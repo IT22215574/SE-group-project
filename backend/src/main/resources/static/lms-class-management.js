@@ -12,8 +12,8 @@ const classNameInput = document.getElementById("class-name");
 const classGradeInput = document.getElementById("class-grade");
 const classYearInput = document.getElementById("class-year");
 const classResetButton = document.getElementById("class-reset");
-const subjectCheckboxes = document.getElementById("subject-checkboxes");
 const classTableBody = document.getElementById("class-table-body");
+const classGradeFilter = document.getElementById("class-grade-filter");
 const sessionBadge = document.getElementById("session-badge");
 const logoutButton = document.getElementById("logout-button");
 const authWarning = document.getElementById("auth-warning");
@@ -204,14 +204,10 @@ function resetClassForm() {
     classNameInput.value = "";
     classGradeInput.value = "";
     classYearInput.value = "";
-    document.querySelectorAll(".subject-checkbox").forEach((checkbox) => {
-        checkbox.checked = false;
-    });
 }
 
 function renderSubjects() {
     subjectList.innerHTML = "";
-    subjectCheckboxes.innerHTML = "";
 
     subjects.forEach((subject) => {
         const chip = document.createElement("button");
@@ -225,33 +221,23 @@ function renderSubjects() {
         });
         subjectList.appendChild(chip);
 
-        const label = document.createElement("label");
-        label.className = "flex items-center gap-2 rounded-lg border border-slate-300 p-2";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.className = "subject-checkbox";
-        checkbox.value = String(subject.id);
-
-        const text = document.createElement("span");
-        text.textContent = subject.name;
-
-        label.append(checkbox, text);
-        subjectCheckboxes.appendChild(label);
     });
 }
 
 function renderClasses() {
     classTableBody.innerHTML = "";
+    const filterGrade = classGradeFilter ? classGradeFilter.value.trim() : "";
+    const visibleClasses = filterGrade
+        ? schoolClasses.filter((schoolClass) => String(schoolClass.grade).trim() === filterGrade)
+        : schoolClasses;
 
-    schoolClasses.forEach((schoolClass) => {
+    visibleClasses.forEach((schoolClass) => {
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200";
         row.innerHTML = `
             <td class="p-2">${schoolClass.className}</td>
             <td class="p-2">${schoolClass.grade}</td>
             <td class="p-2">${schoolClass.academicYear}</td>
-            <td class="p-2">${schoolClass.subjects.map((subject) => subject.name).join(", ")}</td>
             <td class="p-2"></td>
         `;
 
@@ -267,11 +253,6 @@ function renderClasses() {
             classNameInput.value = schoolClass.className;
             classGradeInput.value = schoolClass.grade;
             classYearInput.value = schoolClass.academicYear;
-
-            const selected = new Set(schoolClass.subjects.map((subject) => String(subject.id)));
-            document.querySelectorAll(".subject-checkbox").forEach((checkbox) => {
-                checkbox.checked = selected.has(checkbox.value);
-            });
         });
 
         const deleteButton = document.createElement("button");
@@ -388,7 +369,7 @@ classForm.addEventListener("submit", async (event) => {
         className,
         grade,
         academicYear,
-        subjectIds: Array.from(document.querySelectorAll(".subject-checkbox:checked")).map((checkbox) => checkbox.value)
+        subjectIds: []
     };
 
     try {
@@ -415,6 +396,10 @@ classForm.addEventListener("submit", async (event) => {
 
 subjectResetButton.addEventListener("click", resetSubjectForm);
 classResetButton.addEventListener("click", resetClassForm);
+
+if (classGradeFilter) {
+    classGradeFilter.addEventListener("change", renderClasses);
+}
 
 refreshAll().catch((error) => {
     window.alert(`Failed to load data: ${error.message}`);
