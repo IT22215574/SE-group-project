@@ -20,9 +20,12 @@ const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
 const usersSection = document.getElementById("users");
+const attendanceSection = document.getElementById("attendance");
+const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
 const resultsSection = document.getElementById("results");
 const notificationsSection = document.getElementById("notifications");
+const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
@@ -113,23 +116,28 @@ if (classFormCard && !canManageClasses) {
 }
 
 const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const attendanceNavLink = document.querySelector('a.lms-nav-link[href="#attendance"]');
+const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
+const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
 
 if (currentRole !== "admin") {
-    if (usersNavLink) {
-        usersNavLink.classList.add("hidden");
-    }
-    if (feesNavLink) {
-        feesNavLink.classList.add("hidden");
-    }
+    if (usersNavLink) usersNavLink.classList.add("hidden");
+    if (attendanceNavLink) attendanceNavLink.classList.add("hidden");
+    if (teachersNavLink) teachersNavLink.classList.add("hidden");
+    if (feesNavLink) feesNavLink.classList.add("hidden");
+    if (examsNavLink) examsNavLink.classList.add("hidden");
 }
 
 const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
     users: usersSection,
+    attendance: attendanceSection,
+    teachers: teachersSection,
     fees: feesSection,
     results: resultsSection,
+    exams: examsSection,
     notifications: notificationsSection
 };
 
@@ -152,9 +160,11 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
+    // non-admin: can see classes, subjects, results, notifications
+    // admin: can see everything including users, attendance, teachers, fees, exams
     let allowedPages = ["classes", "subjects", "results", "notifications"];
     if (currentRole === "admin") {
-        allowedPages = ["classes", "subjects", "users", "fees", "results", "notifications"];
+        allowedPages = ["classes", "subjects", "users", "attendance", "teachers", "fees", "results", "exams", "notifications"];
     }
     const page = pageFromHash();
 
