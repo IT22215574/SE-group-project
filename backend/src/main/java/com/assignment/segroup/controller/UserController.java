@@ -15,13 +15,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/students/{classId}")
-    public List<User> getStudentsByClass(@PathVariable String classId) {
-        return userRepository.findByRoleAndClassId("student", classId);
-    }
-    
-    @GetMapping("/students")
-    public List<User> getAllStudents() {
-        return userRepository.findByRole("student");
+    // Returns all students in a given class — used by Teacher form dropdown
+    @GetMapping("/students/{classID}")
+    public List<User> getStudentsByClass(@PathVariable String classID) {
+        return userRepository.findByRoleAndClassID("student", classID);
     }
 }

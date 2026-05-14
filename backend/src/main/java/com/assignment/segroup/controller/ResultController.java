@@ -29,6 +29,7 @@ public class ResultController {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    // ── CREATE ──────────────────────────────────────────────────────────────────
     @PostMapping
     public Result createResult(@RequestBody Result result) {
         result.setGrade(calculateGrade(result.getMarks()));
@@ -36,16 +37,19 @@ public class ResultController {
         return resultRepository.save(result);
     }
 
+    // ── READ (Teacher – all results for a class) ─────────────────────────────
     @GetMapping("/class/{classID}")
     public List<Result> getResultsByClass(@PathVariable String classID) {
         return resultRepository.findByClassID(classID);
     }
 
+    // ── READ (Student – only published results) ──────────────────────────────
     @GetMapping("/my/{studentID}")
     public List<Result> getMyResults(@PathVariable String studentID) {
         return resultRepository.findByStudentIDAndVisible(studentID, true);
     }
 
+    // ── UPDATE ───────────────────────────────────────────────────────────────
     @PutMapping("/{id}")
     public ResponseEntity<?> updateResult(@PathVariable String id,
                                           @RequestBody Result updatedResult) {
@@ -58,6 +62,7 @@ public class ResultController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    // ── DELETE ───────────────────────────────────────────────────────────────
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteResult(@PathVariable String id) {
         if (resultRepository.existsById(id)) {
@@ -69,6 +74,7 @@ public class ResultController {
         return ResponseEntity.notFound().build();
     }
 
+    // ── PUBLISH (marks all visible + notifies students) ──────────────────────
     @PostMapping("/publish")
     public Map<String, String> publishResults(@RequestBody Map<String, String> payload) {
         String classID = payload.get("classID");
@@ -82,7 +88,7 @@ public class ResultController {
 
         List<User> students;
         if (classID != null && !classID.isEmpty()) {
-            students = userRepository.findByRoleAndClassId("student", classID);
+            students = userRepository.findByRoleAndClassID("student", classID);
         } else {
             students = userRepository.findByRole("student");
         }
@@ -102,6 +108,7 @@ public class ResultController {
         return resp;
     }
 
+    // ── HELPER: auto-calculate grade ─────────────────────────────────────────
     private String calculateGrade(int marks) {
         if (marks >= 90) return "A+";
         if (marks >= 80) return "A";

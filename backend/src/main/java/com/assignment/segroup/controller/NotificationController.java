@@ -18,19 +18,22 @@ public class NotificationController {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    // ── READ ─────────────────────────────────────────────────────────────────
     @GetMapping("/{recipientID}")
     public List<Notification> getNotifications(@PathVariable String recipientID) {
         return notificationRepository.findByRecipientIDOrderByCreatedAtDesc(recipientID);
     }
 
+    // ── UPDATE: toggle read / unread status ───────────────────────────────────
     @PutMapping("/{id}/read")
     public ResponseEntity<?> toggleReadStatus(@PathVariable String id) {
         return notificationRepository.findById(id).map(n -> {
-            n.setRead(!n.isRead());
+            n.setRead(!n.isRead()); // toggle between read and unread
             return ResponseEntity.ok(notificationRepository.save(n));
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    // ── DELETE: single notification ──────────────────────────────────────────
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteNotification(@PathVariable String id) {
         if (notificationRepository.existsById(id)) {
@@ -42,6 +45,7 @@ public class NotificationController {
         return ResponseEntity.notFound().build();
     }
 
+    // ── DELETE: clear ALL notifications for a student ────────────────────────
     @DeleteMapping("/clear/{recipientID}")
     public ResponseEntity<?> clearAllNotifications(@PathVariable String recipientID) {
         List<Notification> list = notificationRepository.findByRecipientIDOrderByCreatedAtDesc(recipientID);
