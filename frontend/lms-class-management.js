@@ -19,7 +19,8 @@ const logoutButton = document.getElementById("logout-button");
 const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
-const usersSection = document.getElementById("users");
+const studentsSection = document.getElementById("students");
+const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
@@ -87,7 +88,7 @@ if (authWarning) {
         authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
         authWarning.classList.remove("hidden");
     } else if (currentRole === "teacher") {
-        authWarning.textContent = "User access can manage classes and subjects, while the users and exams areas remain informational.";
+        authWarning.textContent = "User access can manage classes and subjects, while the students, teachers, and fees areas remain informational.";
         authWarning.classList.remove("hidden");
     }
 }
@@ -110,12 +111,16 @@ if (classFormCard && !canManageClasses) {
     classFormCard.classList.add("opacity-75");
 }
 
-const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const studentsNavLink = document.querySelector('a.lms-nav-link[href="#students"]');
+const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 
 if (currentRole !== "admin") {
-    if (usersNavLink) {
-        usersNavLink.classList.add("hidden");
+    if (studentsNavLink) {
+        studentsNavLink.classList.add("hidden");
+    }
+    if (teachersNavLink) {
+        teachersNavLink.classList.add("hidden");
     }
     if (feesNavLink) {
         feesNavLink.classList.add("hidden");
@@ -125,7 +130,8 @@ if (currentRole !== "admin") {
 const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
-    users: usersSection,
+    students: studentsSection,
+    teachers: teachersSection,
     fees: feesSection
 };
 
@@ -148,7 +154,7 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "fees"] : ["classes", "subjects"];
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "students", "teachers", "fees"] : ["classes", "subjects"];
     const page = pageFromHash();
 
     if (!page) {

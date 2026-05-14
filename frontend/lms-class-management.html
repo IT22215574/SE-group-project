@@ -21,7 +21,8 @@
                 <div class="flex flex-wrap items-center justify-center gap-8 md:col-start-2">
                     <a href="#classes" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Classes</a>
                     <a href="#subjects" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Subjects</a>
-                    <a href="#users" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Users</a>
+                    <a href="#students" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Students</a>
+                    <a href="#teachers" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Teachers</a>
                     <a href="#fees" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Fees</a>
                 </div>
                 <div class="flex items-center justify-center gap-3 md:col-start-3 md:justify-self-end">
@@ -107,11 +108,11 @@
         </div>
     </section>
 
-    <!-- ===== USER MANAGEMENT ===== -->
-    <section id="users" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+    <!-- ===== STUDENT MANAGEMENT ===== -->
+    <section id="students" class="mt-6 hidden grid gap-6 md:grid-cols-2">
         <div id="user-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Users</p>
-            <h2 class="mt-1 text-xl font-bold text-slate-950">User Form</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Students</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Student Form</h2>
             <form id="user-form" class="mt-4 space-y-3">
                 <input id="user-id" type="hidden" />
                 <div>
@@ -123,20 +124,11 @@
                     <input id="user-email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="john@example.com" required />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Role</label>
-                    <select id="user-role" class="w-full rounded-lg border border-slate-300 p-2" required>
-                        <option value="">Select role</option>
-                        <option value="student">Student</option>
-                        <option value="teacher">Teacher</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <div>
                     <label class="block text-sm font-medium">Phone</label>
                     <input id="user-phone" class="w-full rounded-lg border border-slate-300 p-2" placeholder="+94 7X XXX XXXX" />
                 </div>
                 <div class="flex gap-2">
-                    <button class="rounded-lg bg-violet-600 px-4 py-2 text-white" type="submit">Save User</button>
+                    <button class="rounded-lg bg-violet-600 px-4 py-2 text-white" type="submit">Save Student</button>
                     <button id="user-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
                 </div>
             </form>
@@ -145,8 +137,8 @@
         <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm">
             <div class="flex items-center justify-between gap-4">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Users</p>
-                    <h2 class="mt-1 text-xl font-bold text-slate-950">User List</h2>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Students</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Student List</h2>
                 </div>
                 <span class="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800">Manage records</span>
             </div>
@@ -156,7 +148,6 @@
                     <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
                         <th class="p-3">Name</th>
                         <th class="p-3">Email</th>
-                        <th class="p-3">Role</th>
                         <th class="p-3">Phone</th>
                         <th class="p-3">Actions</th>
                     </tr>
@@ -164,6 +155,15 @@
                     <tbody id="user-table-body"></tbody>
                 </table>
             </div>
+        </div>
+    </section>
+
+    <!-- ===== TEACHER MANAGEMENT ===== -->
+    <section id="teachers" class="mt-6 hidden">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600">Teachers</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Teachers</h2>
+            <p class="mt-2 text-sm text-slate-600">This section is reserved for teacher management.</p>
         </div>
     </section>
 
@@ -175,7 +175,7 @@
             <form id="fee-form" class="mt-4 space-y-3">
                 <input id="fee-id" type="hidden" />
                 <div>
-                    <label class="block text-sm font-medium">User</label>
+                    <label class="block text-sm font-medium">Student</label>
                     <select id="fee-user" class="w-full rounded-lg border border-slate-300 p-2" required>
                         <option value="">Select user</option>
                     </select>
@@ -216,7 +216,7 @@
                 <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800">Manage records</span>
             </div>
             <div class="mt-3 mb-3">
-                <label class="block text-sm font-medium text-slate-600">Filter by User</label>
+                <label class="block text-sm font-medium text-slate-600">Filter by Student</label>
                 <select id="fee-filter-user" class="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm">
                     <option value="">All Users</option>
                 </select>
@@ -225,7 +225,7 @@
                 <table class="min-w-full text-left text-sm">
                     <thead>
                     <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
-                        <th class="p-3">User</th>
+                        <th class="p-3">Student</th>
                         <th class="p-3">Description</th>
                         <th class="p-3">Amount</th>
                         <th class="p-3">Due Date</th>
