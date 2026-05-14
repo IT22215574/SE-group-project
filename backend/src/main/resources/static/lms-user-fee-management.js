@@ -282,7 +282,7 @@ userForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    const payload = { name, email, role: "student", phone, classId };
+    const payload = { name, email: email || null, role: "student", phone: phone || null, classId: classId || null };
 
     try {
         if (id) {
