@@ -7,7 +7,6 @@ public record SchoolClassResponse(
         String className,
         String grade,
         String academicYear,
-        String notes,
         List<SubjectResponse> subjects
 ) {
 }

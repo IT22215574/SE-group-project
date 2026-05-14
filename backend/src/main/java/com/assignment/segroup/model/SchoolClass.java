@@ -1,16 +1,24 @@
 package com.assignment.segroup.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection = "school_classes")
+@Entity
+@Table(name = "school_classes")
 public class SchoolClass {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String className;
@@ -19,9 +27,12 @@ public class SchoolClass {
 
     private String academicYear;
 
-    private String notes;
-
-    @DBRef
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "school_class_subjects",
+        joinColumns = @JoinColumn(name = "school_class_id"),
+        inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
     private Set<Subject> subjects = new HashSet<>();
 
     public SchoolClass() {
@@ -53,14 +64,6 @@ public class SchoolClass {
 
     public void setAcademicYear(String academicYear) {
         this.academicYear = academicYear;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
     }
 
     public Set<Subject> getSubjects() {

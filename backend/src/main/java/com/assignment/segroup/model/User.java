@@ -1,25 +1,28 @@
 package com.assignment.segroup.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.index.Indexed;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
 
-@Document(collection = "users")
+@Entity
+@Table(name = "users")
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String name;
 
-    @Indexed(unique = true, sparse = true)
+    @Column(unique = true)
     private String email;
 
     private String role; // e.g. student, teacher, admin
 
     private String phone;
-
-    private String classId;
 
     public User() {}
 
@@ -36,7 +39,4 @@ public class User {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getClassId() { return classId; }
-    public void setClassId(String classId) { this.classId = classId; }
 }

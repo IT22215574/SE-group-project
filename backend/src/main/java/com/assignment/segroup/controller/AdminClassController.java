@@ -87,8 +87,6 @@ public class AdminClassController {
         schoolClass.setClassName(request.getClassName().trim());
         schoolClass.setGrade(request.getGrade().trim());
         schoolClass.setAcademicYear(request.getAcademicYear().trim());
-        String notes = request.getNotes();
-        schoolClass.setNotes(notes == null ? "" : notes.trim());
 
         Set<Subject> subjects = new LinkedHashSet<>();
         for (String subjectId : request.getSubjectIds()) {
@@ -114,7 +112,6 @@ public class AdminClassController {
                 schoolClass.getClassName(),
                 schoolClass.getGrade(),
                 schoolClass.getAcademicYear(),
-            schoolClass.getNotes(),
                 subjects
         );
     }

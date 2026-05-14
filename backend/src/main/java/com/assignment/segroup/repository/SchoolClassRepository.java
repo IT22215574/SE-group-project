@@ -1,7 +1,7 @@
 package com.assignment.segroup.repository;
 
 import com.assignment.segroup.model.SchoolClass;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SchoolClassRepository extends MongoRepository<SchoolClass, String> {
+public interface SchoolClassRepository extends JpaRepository<SchoolClass, String> {
 }

@@ -1,8 +1,8 @@
 package com.assignment.segroup.repository;
 
 import com.assignment.segroup.model.Subject;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubjectRepository extends MongoRepository<Subject, String> {
+public interface SubjectRepository extends JpaRepository<Subject, String> {
     boolean existsByNameIgnoreCase(String name);
 }

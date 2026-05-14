@@ -16,8 +16,6 @@ public class SchoolClassRequest {
     @NotBlank(message = "Academic year is required")
     private String academicYear;
 
-    private String notes;
-
     private Set<String> subjectIds = new HashSet<>();
 
     public String getClassName() {
@@ -42,14 +40,6 @@ public class SchoolClassRequest {
 
     public void setAcademicYear(String academicYear) {
         this.academicYear = academicYear;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
     }
 
     public Set<String> getSubjectIds() {

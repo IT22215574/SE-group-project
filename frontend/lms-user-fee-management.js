@@ -8,8 +8,8 @@ const userForm = document.getElementById("user-form");
 const userIdInput = document.getElementById("user-id");
 const userNameInput = document.getElementById("user-name");
 const userEmailInput = document.getElementById("user-email");
+const userRoleInput = document.getElementById("user-role");
 const userPhoneInput = document.getElementById("user-phone");
-const userClassSelect = document.getElementById("user-class");
 const userResetButton = document.getElementById("user-reset");
 const userTableBody = document.getElementById("user-table-body");
 
@@ -28,7 +28,6 @@ const feeFilterUser = document.getElementById("fee-filter-user");
 // ─── State ──────────────────────────────────────────────────────────
 let users = [];
 let fees = [];
-// schoolClasses is declared and shared from lms-class-management.js
 
 // ─── Helpers (reuse API_BASE from lms-class-management.js) ──────────
 async function requestJsonUF(path, options = {}) {
@@ -57,10 +56,8 @@ function resetUserForm() {
     userIdInput.value = "";
     userNameInput.value = "";
     userEmailInput.value = "";
+    userRoleInput.value = "";
     userPhoneInput.value = "";
-    if (userClassSelect) {
-        userClassSelect.value = "";
-    }
 }
 
 function resetFeeForm() {
@@ -76,24 +73,21 @@ function resetFeeForm() {
 function renderUsers() {
     userTableBody.innerHTML = "";
 
-    const classLookup = new Map(
-        schoolClasses.map((schoolClass) => [schoolClass.id, schoolClass])
-    );
-
-    const studentUsers = users.filter((user) => user.role === "student");
-
-    studentUsers.forEach((user) => {
-        const classInfo = user.classId ? classLookup.get(user.classId) : null;
-        const classLabel = classInfo ? `${classInfo.className} (Grade ${classInfo.grade})` : "—";
-        const emailLabel = user.email ? user.email : "—";
+    users.forEach((user) => {
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200";
 
+        const roleBadgeColor = {
+            admin: "bg-red-100 text-red-800",
+            teacher: "bg-blue-100 text-blue-800",
+            student: "bg-green-100 text-green-800"
+        }[user.role] || "bg-slate-100 text-slate-800";
+
         row.innerHTML = `
             <td class="p-2 font-medium">${user.name}</td>
-            <td class="p-2">${emailLabel}</td>
+            <td class="p-2">${user.email}</td>
+            <td class="p-2"><span class="rounded-full px-2 py-0.5 text-xs font-semibold ${roleBadgeColor}">${user.role}</span></td>
             <td class="p-2">${user.phone || "—"}</td>
-            <td class="p-2">${classLabel}</td>
             <td class="p-2"></td>
         `;
 
@@ -106,12 +100,10 @@ function renderUsers() {
         editButton.addEventListener("click", () => {
             userIdInput.value = user.id;
             userNameInput.value = user.name;
-            userEmailInput.value = user.email || "";
+            userEmailInput.value = user.email;
+            userRoleInput.value = user.role;
             userPhoneInput.value = user.phone || "";
-            if (userClassSelect) {
-                userClassSelect.value = user.classId || "";
-            }
-            window.location.hash = "#students";
+            window.location.hash = "#users";
         });
 
         const deleteButton = document.createElement("button");
@@ -202,15 +194,13 @@ function renderFees() {
 
 // ─── Populate user dropdowns (fee form + filter) ────────────────────
 function populateUserDropdowns() {
-    const studentUsers = users.filter((user) => user.role === "student");
-
     // Fee form user select
     const currentFeeUser = feeUserSelect.value;
     feeUserSelect.innerHTML = '<option value="">Select user</option>';
-    studentUsers.forEach((user) => {
+    users.forEach((user) => {
         const option = document.createElement("option");
         option.value = user.id;
-        option.textContent = `${user.name} (${user.email || "No email"})`;
+        option.textContent = `${user.name} (${user.email})`;
         feeUserSelect.appendChild(option);
     });
     feeUserSelect.value = currentFeeUser;
@@ -218,51 +208,26 @@ function populateUserDropdowns() {
     // Fee filter user select
     const currentFilter = feeFilterUser.value;
     feeFilterUser.innerHTML = '<option value="">All Users</option>';
-    studentUsers.forEach((user) => {
+    users.forEach((user) => {
         const option = document.createElement("option");
         option.value = user.id;
-        option.textContent = `${user.name} (${user.email || "No email"})`;
+        option.textContent = `${user.name} (${user.email})`;
         feeFilterUser.appendChild(option);
     });
     feeFilterUser.value = currentFilter;
 }
 
-// ─── Populate class dropdown (student form) ────────────────────────
-function populateClassDropdown() {
-    if (!userClassSelect) {
-        return;
-    }
-
-    const currentClass = userClassSelect.value;
-    userClassSelect.innerHTML = '<option value="">Select class</option>';
-
-    schoolClasses
-        .slice()
-        .sort((a, b) => String(a.className).localeCompare(String(b.className), undefined, { sensitivity: "base" }))
-        .forEach((schoolClass) => {
-            const option = document.createElement("option");
-            option.value = schoolClass.id;
-            option.textContent = `${schoolClass.className} (Grade ${schoolClass.grade})`;
-            userClassSelect.appendChild(option);
-        });
-
-    userClassSelect.value = currentClass;
-}
-
 // ─── Refresh all user & fee data ────────────────────────────────────
 async function refreshUsersAndFees() {
-    const [userData, feeData, classData] = await Promise.all([
+    const [userData, feeData] = await Promise.all([
         requestJsonUF("/api/admin/users"),
-        requestJsonUF("/api/admin/fees"),
-        requestJsonUF("/api/admin/classes")
+        requestJsonUF("/api/admin/fees")
     ]);
 
     users = userData;
     fees = feeData;
-    schoolClasses = classData;
 
     populateUserDropdowns();
-    populateClassDropdown();
     renderUsers();
     renderFees();
 }
@@ -274,15 +239,15 @@ userForm.addEventListener("submit", async (event) => {
     const id = userIdInput.value.trim();
     const name = userNameInput.value.trim();
     const email = userEmailInput.value.trim();
+    const role = userRoleInput.value.trim();
     const phone = userPhoneInput.value.trim();
-    const classId = userClassSelect ? userClassSelect.value.trim() : "";
 
-    if (!name) {
-        window.alert("Name is required.");
+    if (!name || !email || !role) {
+        window.alert("Name, email, and role are required.");
         return;
     }
 
-    const payload = { name, email: email || null, role: "student", phone: phone || null, classId: classId || null };
+    const payload = { name, email, role, phone };
 
     try {
         if (id) {
