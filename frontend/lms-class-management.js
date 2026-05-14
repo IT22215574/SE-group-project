@@ -17,6 +17,9 @@ const classGradeInput = document.getElementById("class-grade");
 const classYearInput = document.getElementById("class-year");
 const classNotesInput = document.getElementById("class-notes");
 const classResetButton = document.getElementById("class-reset");
+const classSuffixInput = document.getElementById("class-suffix");
+const classNamePrefix = document.getElementById("class-name-prefix");
+const classNamePreview = document.getElementById("class-name-preview");
 const classTableBody = document.getElementById("class-table-body");
 const classGradeFilter = document.getElementById("class-grade-filter");
 const sessionBadge = document.getElementById("session-badge");
@@ -31,6 +34,7 @@ const assignmentSubjectList = document.getElementById("assignment-subject-list")
 const assignmentResetButton = document.getElementById("assignment-reset");
 const assignmentCloseButton = document.getElementById("assignment-close");
 const usersSection = document.getElementById("users");
+const attendanceSection = document.getElementById("attendance");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
 const examsSection = document.getElementById("exams");
@@ -146,6 +150,7 @@ if (subjectAssignmentModal && !canManageClasses) {
 }
 
 const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const attendanceNavLink = document.querySelector('a.lms-nav-link[href="#attendance"]');
 const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
@@ -154,6 +159,9 @@ if (currentRole !== "admin") {
     if (usersNavLink) {
         usersNavLink.classList.add("hidden");
     }
+  if (attendanceNavLink) {
+    attendanceNavLink.classList.add("hidden");
+  }
     if (teachersNavLink) {
         teachersNavLink.classList.add("hidden");
     }
@@ -169,6 +177,7 @@ const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
     users: usersSection,
+  attendance: attendanceSection,
     teachers: teachersSection,
     fees: feesSection,
     exams: examsSection
@@ -193,7 +202,7 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "teachers", "fees", "exams"] : ["classes", "subjects"];
+  const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "attendance", "teachers", "fees", "exams"] : ["classes", "subjects"];
     const page = pageFromHash();
 
   if (!page) {
@@ -243,8 +252,22 @@ function resetClassForm() {
     classNameInput.value = "";
     classGradeInput.value = "";
     classYearInput.value = "";
-    if (classNotesInput) {
-        classNotesInput.value = "";
+    if (classNotesInput) classNotesInput.value = "";
+    if (classSuffixInput) classSuffixInput.value = "";
+    if (classNamePrefix) classNamePrefix.textContent = "Grade __ - ";
+    if (classNamePreview) classNamePreview.textContent = "";
+}
+
+function updateClassName() {
+    const grade = classGradeInput.value.trim();
+    const suffix = classSuffixInput ? classSuffixInput.value.toUpperCase() : "";
+    if (classNamePrefix) {
+        classNamePrefix.textContent = grade ? `Grade ${grade} - ` : "Grade __ - ";
+    }
+    const full = grade && suffix ? `Grade ${grade} - ${suffix}` : "";
+    classNameInput.value = full;
+    if (classNamePreview) {
+        classNamePreview.textContent = full ? `Preview: ${full}` : "";
     }
 }
 
@@ -268,10 +291,10 @@ function ensureSubjectMenuCloseHandler() {
 
 function createSubjectCell(subject) {
     const wrapper = document.createElement("div");
-    wrapper.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm";
+    wrapper.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm w-full min-w-0";
 
     const name = document.createElement("div");
-    name.className = "text-xs font-semibold text-slate-800";
+    name.className = "text-xs font-semibold text-slate-800 truncate min-w-0";
     name.textContent = subject.name;
 
     const actions = document.createElement("div");
@@ -378,14 +401,14 @@ function renderSubjects() {
 
         chunk.forEach((subject) => {
             const cell = document.createElement("td");
-            cell.className = "p-3 align-top overflow-visible";
+            cell.className = "p-3 align-top overflow-visible w-1/5";
             cell.appendChild(createSubjectCell(subject));
             row.appendChild(cell);
         });
 
         for (let j = chunk.length; j < subjectsPerRow; j += 1) {
             const emptyCell = document.createElement("td");
-            emptyCell.className = "p-2";
+            emptyCell.className = "p-2 w-1/5";
             row.appendChild(emptyCell);
         }
 
@@ -592,12 +615,12 @@ function renderClasses() {
         editButton.disabled = !canManageClasses;
         editButton.addEventListener("click", () => {
             classIdInput.value = String(schoolClass.id);
-            classNameInput.value = schoolClass.className;
             classGradeInput.value = schoolClass.grade;
             classYearInput.value = schoolClass.academicYear;
-            if (classNotesInput) {
-                classNotesInput.value = schoolClass.notes || "";
-            }
+            if (classNotesInput) classNotesInput.value = schoolClass.notes || "";
+            const match = schoolClass.className.match(/^Grade\s+\d+\s*-\s*(.+)$/i);
+            if (classSuffixInput) classSuffixInput.value = match ? match[1].trim().toUpperCase() : schoolClass.className;
+            updateClassName();
         });
 
     const deleteButton = document.createElement("button");
@@ -651,6 +674,8 @@ async function refreshAll() {
     } else {
         renderAssignmentSubjectOptions([]);
     }
+
+    window.dispatchEvent(new CustomEvent("classes:updated", { detail: schoolClasses }));
 }
 
 subjectForm.addEventListener("submit", async (event) => {
@@ -723,6 +748,12 @@ classForm.addEventListener("submit", async (event) => {
         return;
     }
 
+    const suffixValue = classSuffixInput ? classSuffixInput.value.trim() : "";
+    if (!suffixValue || !/^[A-Za-z]{1,2}$/.test(suffixValue)) {
+        window.alert("Class letter must be 1 or 2 letters (e.g. A or Em).");
+        return;
+    }
+
     if (!/^\d+$/.test(academicYear)) {
         window.alert("Academic Year must be a number.");
         return;
@@ -761,6 +792,16 @@ classForm.addEventListener("submit", async (event) => {
 
 subjectResetButton.addEventListener("click", resetSubjectForm);
 classResetButton.addEventListener("click", resetClassForm);
+
+if (classGradeInput) {
+    classGradeInput.addEventListener("input", updateClassName);
+}
+if (classSuffixInput) {
+    classSuffixInput.addEventListener("input", function () {
+        this.value = this.value.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
+        updateClassName();
+    });
+}
 
 if (assignmentClassSelect) {
     assignmentClassSelect.addEventListener("change", () => {

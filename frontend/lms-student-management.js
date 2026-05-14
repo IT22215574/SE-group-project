@@ -128,3 +128,7 @@ searchBtn.addEventListener("click", loadStudents);
 
 loadClasses();
 loadStudents();
+
+window.addEventListener("classes:updated", () => {
+  loadClasses();
+});
