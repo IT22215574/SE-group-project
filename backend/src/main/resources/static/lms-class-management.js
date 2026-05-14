@@ -546,27 +546,18 @@ function renderClasses() {
         ? schoolClasses.filter((schoolClass) => String(schoolClass.grade).trim() === filterGrade)
         : schoolClasses;
 
-    const sortedClasses = [...visibleClasses].sort((a, b) => {
-        const gradeA = parseInt(a.grade, 10);
-        const gradeB = parseInt(b.grade, 10);
-        if (gradeA !== gradeB) {
-            return gradeA - gradeB;
-        }
-        return a.className.localeCompare(b.className, undefined, { sensitivity: "base" });
-    });
-
-    sortedClasses.forEach((schoolClass) => {
+    visibleClasses.forEach((schoolClass) => {
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200";
         row.innerHTML = `
             <td class="p-2">${schoolClass.className}</td>
             <td class="p-2">${schoolClass.grade}</td>
             <td class="p-2">${schoolClass.academicYear}</td>
-            <td class="p-2 pr-24">${schoolClass.notes || ""}</td>
-            <td class="p-2 pl-0"></td>
+            <td class="p-2" data-role="actions"></td>
+            <td class="p-2 text-slate-600">${schoolClass.notes || ""}</td>
         `;
 
-        const actionsCell = row.querySelector("td:last-child");
+        const actionsCell = row.querySelector("td[data-role=\"actions\"]");
 
         const editButton = document.createElement("button");
         editButton.type = "button";

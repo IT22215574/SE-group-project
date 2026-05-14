@@ -53,7 +53,8 @@ public class AdminUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody UserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail().trim())) {
+        String email = normalizeOptional(request.getEmail());
+        if (email != null && userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
@@ -86,9 +87,10 @@ public class AdminUserController {
 
     private void applyRequestToUser(User user, UserRequest request) {
         user.setName(request.getName().trim());
-        user.setEmail(request.getEmail().trim());
+        user.setEmail(normalizeOptional(request.getEmail()));
         user.setRole(request.getRole().trim());
         user.setPhone(request.getPhone() != null ? request.getPhone().trim() : "");
+        user.setClassId(normalizeOptional(request.getClassId()));
     }
 
     private UserResponse toResponse(User user) {
@@ -97,7 +99,16 @@ public class AdminUserController {
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                user.getPhone()
+                user.getPhone(),
+                user.getClassId()
         );
+    }
+
+    private String normalizeOptional(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
