@@ -21,6 +21,8 @@ const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
 const usersSection = document.getElementById("users");
 const feesSection = document.getElementById("fees");
+const resultsSection = document.getElementById("results");
+const notificationsSection = document.getElementById("notifications");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
@@ -126,7 +128,9 @@ const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
     users: usersSection,
-    fees: feesSection
+    fees: feesSection,
+    results: resultsSection,
+    notifications: notificationsSection
 };
 
 function pageFromHash() {
@@ -148,7 +152,10 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "fees"] : ["classes", "subjects"];
+    let allowedPages = ["classes", "subjects", "results", "notifications"];
+    if (currentRole === "admin") {
+        allowedPages = ["classes", "subjects", "users", "fees", "results", "notifications"];
+    }
     const page = pageFromHash();
 
     if (!page) {

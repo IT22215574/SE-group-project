@@ -18,6 +18,8 @@ public class User {
     private String role; // e.g. student, teacher, admin
 
     private String phone;
+    
+    private String classId;
 
     public User() {}
 
@@ -34,4 +36,7 @@ public class User {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getClassId() { return classId; }
+    public void setClassId(String classId) { this.classId = classId; }
 }

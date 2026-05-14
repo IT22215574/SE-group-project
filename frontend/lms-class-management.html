@@ -23,6 +23,8 @@
                     <a href="#subjects" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Subjects</a>
                     <a href="#users" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Users</a>
                     <a href="#fees" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Fees</a>
+                    <a href="#results" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Results</a>
+                    <a href="#notifications" class="lms-nav-link px-2 py-2 text-slate-900 transition-colors hover:text-blue-600 focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Notifications <span id="nav-notif-badge" class="hidden ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white"></span></a>
                 </div>
                 <div class="flex items-center justify-center gap-3 md:col-start-3 md:justify-self-end">
                     <span class="hidden h-6 w-px bg-slate-200 md:block" aria-hidden="true"></span>
@@ -238,10 +240,104 @@
             </div>
         </div>
     </section>
+    <!-- ===== RESULTS MANAGEMENT ===== -->
+    <section id="results" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+        <div id="result-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-pink-700">Results</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Result Form</h2>
+            <form id="result-form" class="mt-4 space-y-3">
+                <input id="result-id" type="hidden" />
+                <div>
+                    <label class="block text-sm font-medium">Student</label>
+                    <select id="result-student" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select student</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Class</label>
+                    <select id="result-class" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select class</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Subject</label>
+                    <select id="result-subject" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select subject</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Marks (0-100)</label>
+                    <input id="result-marks" type="number" min="0" max="100" class="w-full rounded-lg border border-slate-300 p-2" placeholder="85" required />
+                </div>
+                <div class="flex gap-2">
+                    <button class="rounded-lg bg-pink-600 px-4 py-2 text-white" type="submit">Save Result</button>
+                    <button id="result-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-pink-50 to-white p-5 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-pink-700">Results</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Class Results</h2>
+                </div>
+                <button id="publish-results-btn" class="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-700">Publish Class Results</button>
+            </div>
+            <div class="mt-4 flex gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium">Filter Class</label>
+                    <select id="filter-result-class" class="w-full rounded-lg border border-slate-300 p-2">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 flex-1">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Student</th>
+                        <th class="p-3">Subject</th>
+                        <th class="p-3">Marks</th>
+                        <th class="p-3">Grade</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="result-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NOTIFICATIONS MANAGEMENT (Student View) ===== -->
+    <section id="notifications" class="mt-6 hidden flex-col gap-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-700">Notifications</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">My Notifications</h2>
+                </div>
+                <button id="clear-notifications-btn" class="rounded-full border border-red-300 bg-red-50 text-red-700 px-4 py-2 text-sm font-semibold hover:bg-red-100">Clear All</button>
+            </div>
+            <div id="notifications-list" class="mt-4 space-y-3">
+                <p class="text-sm text-slate-500">No notifications.</p>
+            </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm mt-6">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-700">Results</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">My Published Results</h2>
+            <div id="student-results-grid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <p class="text-sm text-slate-500">No published results.</p>
+            </div>
+        </div>
+    </section>
 </div>
 
 <script src="./auth.js"></script>
 <script src="./lms-class-management.js"></script>
 <script src="./lms-user-fee-management.js"></script>
+<script src="./lms-notification-management.js"></script>
 </body>
 </html>
