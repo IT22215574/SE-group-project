@@ -1,77 +1,70 @@
-package com.assignment.segroup.model;
+package com.assignment.segroup.dto;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-import java.time.Instant;
 import java.time.LocalDate;
-@Document(collection = "students")
-public class Student {
 
-    @Id
-    private String id;
+public class StudentRequest {
 
-    public String getName() {
-        if (firstName != null && lastName != null) {
-            return firstName + " " + lastName;
-        }
-        if (firstName != null) return firstName;
-        if (lastName != null) return lastName;
-        return "";
-    }
-
-    public void setName(String name) {
-        if (name != null) {
-            String[] parts = name.split(" ", 2);
-            this.firstName = parts[0];
-            if (parts.length > 1) {
-                this.lastName = parts[1];
-            }
-        }
-    }
-
-    public Student() {}
-
-    public Student(String name, String classId) {
-        setName(name);
-        this.classId = classId;
-    }
-    @Indexed(unique = true)
+    @NotBlank(message = "Admission number is required")
+    @Size(max = 30, message = "Admission number must be 30 characters or less")
     private String admissionNo;
 
+    @NotBlank(message = "First name is required")
+    @Size(max = 60, message = "First name must be 60 characters or less")
     private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(max = 60, message = "Last name must be 60 characters or less")
     private String lastName;
+
+    @Email(message = "Student email must be valid")
+    @Size(max = 120, message = "Email must be 120 characters or less")
     private String email;
+
+    @Pattern(regexp = "^$|^[0-9+()\\- ]{7,20}$", message = "Student phone number is invalid")
     private String phone;
+
+    @NotBlank(message = "Gender is required")
     private String gender;
+
+    @Past(message = "Date of birth must be a past date")
     private LocalDate dateOfBirth;
+
+    @NotBlank(message = "Grade is required")
     private String grade;
+
     private String classId;
     private String className;
+
+    @NotBlank(message = "Guardian name is required")
+    @Size(max = 100, message = "Guardian name must be 100 characters or less")
     private String guardianName;
+
+    @NotBlank(message = "Guardian phone is required")
+    @Pattern(regexp = "^[0-9+()\\- ]{7,20}$", message = "Guardian phone number is invalid")
     private String guardianPhone;
+
+    @Email(message = "Guardian email must be valid")
+    @Size(max = 120, message = "Guardian email must be 120 characters or less")
     private String guardianEmail;
+
+    @Size(max = 300, message = "Address must be 300 characters or less")
     private String address;
+
+    @PastOrPresent(message = "Enrollment date cannot be in the future")
     private LocalDate enrollmentDate;
+
+    @NotBlank(message = "Status is required")
     private String status;
+
+    @Size(max = 500, message = "Notes must be 500 characters or less")
     private String notes;
-
-    @CreatedDate
-    private Instant createdAt;
-
-    @LastModifiedDate
-    private Instant updatedAt;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getAdmissionNo() {
         return admissionNo;
@@ -207,21 +200,5 @@ public class Student {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
