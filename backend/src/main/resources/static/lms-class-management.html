@@ -1,12 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Royal Crest Academy | Class Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="min-h-screen bg-white p-2 text-slate-900 md:p-4">
 <div class="mx-auto max-w-7xl rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-lg md:p-8">
@@ -50,23 +48,13 @@
                     </div>
                 </div>
             </div>
-          </div>
-      </nav>
+        </div>
+    </nav>
 
-      <div
-        id="auth-warning"
-        class="mb-6 hidden rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-      ></div>
+    <div id="auth-warning" class="mb-6 hidden rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"></div>
 
-      <section
-        id="subjects"
-        class="mb-6 hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-      >
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700"
-        >
-          Subjects
-        </p>
+    <section id="subjects" class="mb-6 hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-700">Subjects</p>
         <h2 class="mt-1 text-2xl font-bold text-slate-950">Subject Form</h2>
         <p class="mt-2 text-sm text-slate-600">Create and manage the subject list used by classes and exams.</p>
         <div id="subject-form-card" class="mt-5 w-full">
@@ -137,7 +125,7 @@
                 </div>
             </div>
         </div>
-      </section>
+    </section>
 
     <section id="classes" class="hidden space-y-6">
         <div id="class-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -211,91 +199,8 @@
             </div>
         </div>
     </section>
-    
-    <!-- ===== STUDENT MANAGEMENT ===== -->
-<section id="students" class="mt-6 hidden grid gap-6 md:grid-cols-2">
-    <div id="student-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-700">Students</p>
-        <h2 class="mt-1 text-xl font-bold text-slate-950">Student Form</h2>
 
-        <form id="student-form" class="mt-4 space-y-3">
-            <input id="student-id" type="hidden" />
-
-            <input id="admission-no" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Admission No" required />
-            <input id="first-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="First Name" required />
-            <input id="last-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Last Name" required />
-
-            <select id="gender" class="w-full rounded-lg border border-slate-300 p-2" required>
-                <option value="">Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-            </select>
-
-            <input id="date-of-birth" type="date" class="w-full rounded-lg border border-slate-300 p-2" />
-            <input id="email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Student Email" />
-            <input id="phone" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Student Phone" />
-
-            <input id="grade" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Grade" required />
-
-            <select id="student-class" class="w-full rounded-lg border border-slate-300 p-2">
-                <option value="">Select Class</option>
-            </select>
-
-            <input id="guardian-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Guardian Name" required />
-            <input id="guardian-phone" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Guardian Phone" required />
-            <input id="guardian-email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Guardian Email" />
-
-            <textarea id="address" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Address"></textarea>
-
-            <select id="status" class="w-full rounded-lg border border-slate-300 p-2">
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="TRANSFERRED">Transferred</option>
-                <option value="GRADUATED">Graduated</option>
-            </select>
-
-            <textarea id="notes" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Notes"></textarea>
-
-            <div class="flex gap-2">
-                <button class="rounded-lg bg-cyan-600 px-4 py-2 text-white" type="submit">Save Student</button>
-                <button id="student-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-cyan-50 to-white p-5 shadow-sm">
-        <div class="flex items-center justify-between gap-4">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-700">Students</p>
-                <h2 class="mt-1 text-xl font-bold text-slate-950">Student List</h2>
-            </div>
-            <span class="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-800">Manage records</span>
-        </div>
-
-        <div class="mt-4 mb-4 flex gap-2">
-            <input id="search" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Search student..." />
-            <button id="search-btn" class="rounded-lg bg-slate-800 px-4 py-2 text-white">Search</button>
-        </div>
-
-        <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-            <table class="min-w-full text-left text-sm">
-                <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
-                    <th class="p-3">Admission No</th>
-                    <th class="p-3">Name</th>
-                    <th class="p-3">Grade</th>
-                    <th class="p-3">Class</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3">Actions</th>
-                </tr>
-                </thead>
-                <tbody id="student-table-body"></tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-    <!-- ===== STUDENT MANAGEMENT ===== -->
+    <!-- ===== USER MANAGEMENT ===== -->
     <section id="users" class="mt-6 hidden space-y-6">
         <div id="user-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Students</p>
@@ -358,6 +263,62 @@
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600">Teachers</p>
             <h2 class="mt-1 text-xl font-bold text-slate-950">Teachers</h2>
             <p class="mt-2 text-sm text-slate-600">This section is reserved for teacher management.</p>
+        </div>
+    </section>
+
+    <!-- ===== EXAM MANAGEMENT ===== -->
+    <section id="exams" class="mt-6 hidden">
+        <div class="space-y-6">
+            <div id="exam-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+                <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Form</h2>
+                <form id="exam-form" class="mt-4 space-y-3">
+                    <input id="exam-id" type="hidden" />
+                    <div>
+                        <label class="block text-sm font-medium">Exam Name</label>
+                        <input id="exam-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mid Term Examination" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Subject Name</label>
+                        <input id="exam-subject" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mathematics" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Exam Date</label>
+                        <input id="exam-date" type="date" class="w-full rounded-lg border border-slate-300 p-2" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Total Marks</label>
+                        <input id="exam-total-marks" type="number" min="1" class="w-full rounded-lg border border-slate-300 p-2" placeholder="100" required />
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="rounded-lg bg-rose-600 px-4 py-2 text-white" type="submit">Save Exam</button>
+                        <button id="exam-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                    </div>
+                </form>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+                        <h2 class="mt-1 text-xl font-bold text-slate-950">Exam List</h2>
+                    </div>
+                    <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">Manage records</span>
+                </div>
+                <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                    <table class="min-w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                                <th class="p-3">Exam Name</th>
+                                <th class="p-3">Subject</th>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Total Marks</th>
+                                <th class="p-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -431,117 +392,6 @@
                 </table>
             </div>
         </div>
-    </section>
-
-    <!-- ===== EXAM MANAGEMENT ===== -->
-    <section id="exams" class="mt-6 hidden">
-      <!-- Exam Form + List -->
-      <div class="mb-6 space-y-6">
-        <div
-          id="exam-form-card"
-          class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
-        >
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700"
-          >
-            Examinations
-          </p>
-          <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Form</h2>
-          <form id="exam-form" class="mt-4 space-y-3">
-            <input id="exam-id" type="hidden" />
-            <div>
-              <label class="block text-sm font-medium">Exam Name</label>
-              <input
-                id="exam-name"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="Mid Term Examination"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Subject Name</label>
-              <input
-                id="exam-subject"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="Mathematics"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Exam Date</label>
-              <input
-                id="exam-date"
-                type="date"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium">Total Marks</label>
-              <input
-                id="exam-total-marks"
-                type="number"
-                min="1"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="100"
-                required
-              />
-            </div>
-            <div class="flex gap-2">
-              <button
-                class="rounded-lg bg-rose-600 px-4 py-2 text-white"
-                type="submit"
-              >
-                Save Exam
-              </button>
-              <button
-                id="exam-reset"
-                class="rounded-lg border border-slate-300 px-4 py-2"
-                type="button"
-              >
-                Clear
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div
-          class="rounded-3xl border border-slate-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm"
-        >
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700"
-              >
-                Examinations
-              </p>
-              <h2 class="mt-1 text-xl font-bold text-slate-950">Exam List</h2>
-            </div>
-            <span
-              class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800"
-              >Manage records</span
-            >
-          </div>
-          <div
-            class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200"
-          >
-            <table class="min-w-full text-left text-sm">
-              <thead>
-                <tr
-                  class="border-b border-slate-200 bg-slate-50 text-slate-600"
-                >
-                  <th class="p-3">Exam Name</th>
-                  <th class="p-3">Subject</th>
-                  <th class="p-3">Date</th>
-                  <th class="p-3">Total Marks</th>
-                  <th class="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="exam-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </section>
 </div>
 

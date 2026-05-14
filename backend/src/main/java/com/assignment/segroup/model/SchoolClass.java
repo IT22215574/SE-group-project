@@ -19,6 +19,8 @@ public class SchoolClass {
 
     private String academicYear;
 
+    private String notes;
+
     @DBRef
     private Set<Subject> subjects = new HashSet<>();
 
@@ -51,6 +53,14 @@ public class SchoolClass {
 
     public void setAcademicYear(String academicYear) {
         this.academicYear = academicYear;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Set<Subject> getSubjects() {

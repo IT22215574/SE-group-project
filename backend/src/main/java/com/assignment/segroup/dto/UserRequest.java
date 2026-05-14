@@ -1,6 +1,5 @@
 package com.assignment.segroup.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class UserRequest {
@@ -8,14 +7,14 @@ public class UserRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
     private String email;
 
     @NotBlank(message = "Role is required")
     private String role;
 
     private String phone;
+
+    private String classId;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -28,4 +27,7 @@ public class UserRequest {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getClassId() { return classId; }
+    public void setClassId(String classId) { this.classId = classId; }
 }
