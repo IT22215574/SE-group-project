@@ -13,6 +13,7 @@ const classIdInput = document.getElementById("class-id");
 const classNameInput = document.getElementById("class-name");
 const classGradeInput = document.getElementById("class-grade");
 const classYearInput = document.getElementById("class-year");
+const classNotesInput = document.getElementById("class-notes");
 const classResetButton = document.getElementById("class-reset");
 const classTableBody = document.getElementById("class-table-body");
 const classGradeFilter = document.getElementById("class-grade-filter");
@@ -21,6 +22,12 @@ const logoutButton = document.getElementById("logout-button");
 const authWarning = document.getElementById("auth-warning");
 const subjectFormCard = document.getElementById("subject-form-card");
 const classFormCard = document.getElementById("class-form-card");
+const subjectAssignmentModal = document.getElementById("subject-assignment-modal");
+const subjectAssignmentForm = document.getElementById("subject-assignment-form");
+const assignmentClassSelect = document.getElementById("assignment-class-select");
+const assignmentSubjectList = document.getElementById("assignment-subject-list");
+const assignmentResetButton = document.getElementById("assignment-reset");
+const assignmentCloseButton = document.getElementById("assignment-close");
 const studentsSection = document.getElementById("students");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
@@ -117,6 +124,15 @@ if (classFormCard && !canManageClasses) {
     classFormCard.classList.add("opacity-75");
 }
 
+if (subjectAssignmentModal && !canManageClasses) {
+    subjectAssignmentModal.querySelectorAll("input, select, button").forEach((element) => {
+        if (element.id !== "assignment-reset") {
+            element.disabled = true;
+        }
+    });
+    subjectAssignmentModal.classList.add("opacity-75");
+}
+
 const studentsNavLink = document.querySelector('a.lms-nav-link[href="#students"]');
 const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
@@ -210,6 +226,9 @@ function resetClassForm() {
     classNameInput.value = "";
     classGradeInput.value = "";
     classYearInput.value = "";
+    if (classNotesInput) {
+        classNotesInput.value = "";
+    }
 }
 
 function closeAllSubjectMenus() {
@@ -232,7 +251,7 @@ function ensureSubjectMenuCloseHandler() {
 
 function createSubjectCell(subject) {
     const wrapper = document.createElement("div");
-    wrapper.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm";
+    wrapper.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm";
 
     const name = document.createElement("div");
     name.className = "text-xs font-semibold text-slate-800";
@@ -342,7 +361,7 @@ function renderSubjects() {
 
         chunk.forEach((subject) => {
             const cell = document.createElement("td");
-            cell.className = "p-2 align-top overflow-visible";
+            cell.className = "p-3 align-top overflow-visible";
             cell.appendChild(createSubjectCell(subject));
             row.appendChild(cell);
         });
@@ -395,21 +414,129 @@ function renderSubjectPageClasses() {
 
     if (schoolClasses.length === 0) {
         const row = document.createElement("tr");
-        row.innerHTML = "<td class=\"p-3 text-sm text-slate-500\" colspan=\"3\">No classes created yet.</td>";
+        row.innerHTML = "<td class=\"p-4 text-sm text-slate-500\" colspan=\"4\">No classes created yet.</td>";
         subjectClassTableBody.appendChild(row);
         return;
     }
 
     schoolClasses.forEach((schoolClass) => {
+        const subjectNames = (schoolClass.subjects || [])
+            .map((subject) => subject.name)
+            .filter(Boolean)
+            .join(", ");
         const row = document.createElement("tr");
-        row.className = "border-b border-slate-200";
+        row.className = "border-b border-slate-200 cursor-pointer hover:bg-slate-50";
+        row.setAttribute("tabindex", "0");
+        row.setAttribute("role", "button");
         row.innerHTML = `
-            <td class="p-3">${schoolClass.className}</td>
-            <td class="p-3">${schoolClass.grade}</td>
-            <td class="p-3">${schoolClass.academicYear}</td>
+            <td class="p-4">${schoolClass.className}</td>
+            <td class="p-4">${schoolClass.grade}</td>
+            <td class="p-4">${schoolClass.academicYear}</td>
+            <td class="p-4 text-sm text-slate-600">${subjectNames || "-"}</td>
         `;
+        row.addEventListener("click", () => {
+            openAssignmentModal(schoolClass);
+        });
+        row.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openAssignmentModal(schoolClass);
+            }
+        });
         subjectClassTableBody.appendChild(row);
     });
+}
+
+function renderAssignmentClassOptions() {
+    if (!assignmentClassSelect) {
+        return;
+    }
+
+    const currentValue = assignmentClassSelect.value;
+    assignmentClassSelect.innerHTML = "<option value=\"\">Select class</option>";
+
+    const sortedClasses = [...schoolClasses].sort((a, b) =>
+        String(a.className).localeCompare(String(b.className), undefined, { sensitivity: "base" })
+    );
+
+    sortedClasses.forEach((schoolClass) => {
+        const option = document.createElement("option");
+        option.value = schoolClass.id;
+        option.textContent = `${schoolClass.className} (Grade ${schoolClass.grade})`;
+        assignmentClassSelect.appendChild(option);
+    });
+
+    if (currentValue && sortedClasses.some((schoolClass) => schoolClass.id === currentValue)) {
+        assignmentClassSelect.value = currentValue;
+    }
+}
+
+function renderAssignmentSubjectOptions(selectedIds = []) {
+    if (!assignmentSubjectList) {
+        return;
+    }
+
+    assignmentSubjectList.innerHTML = "";
+
+    if (!assignmentClassSelect || !assignmentClassSelect.value) {
+        assignmentSubjectList.innerHTML = "<p class=\"text-sm text-slate-500\">Select a class to manage subjects.</p>";
+        return;
+    }
+
+    if (subjects.length === 0) {
+        assignmentSubjectList.innerHTML = "<p class=\"text-sm text-slate-500\">No subjects available yet.</p>";
+        return;
+    }
+
+    subjects.forEach((subject) => {
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = subject.id;
+        checkbox.checked = selectedIds.includes(subject.id);
+        checkbox.disabled = !canManageClasses;
+
+        const name = document.createElement("span");
+        name.textContent = subject.name;
+
+        label.append(checkbox, name);
+        assignmentSubjectList.appendChild(label);
+    });
+}
+
+function selectedAssignmentSubjectIds() {
+    if (!assignmentSubjectList) {
+        return [];
+    }
+
+    return Array.from(assignmentSubjectList.querySelectorAll("input[type=checkbox]:checked")).map((input) => input.value);
+}
+
+function openAssignmentModal(schoolClass) {
+    if (!subjectAssignmentModal) {
+        return;
+    }
+
+    subjectAssignmentModal.classList.remove("hidden");
+    subjectAssignmentModal.classList.add("flex");
+
+    if (assignmentClassSelect) {
+        assignmentClassSelect.value = schoolClass ? schoolClass.id : "";
+    }
+
+    const selectedIds = schoolClass ? schoolClass.subjects.map((subject) => subject.id) : [];
+    renderAssignmentSubjectOptions(selectedIds);
+}
+
+function closeAssignmentModal() {
+    if (!subjectAssignmentModal) {
+        return;
+    }
+
+    subjectAssignmentModal.classList.add("hidden");
+    subjectAssignmentModal.classList.remove("flex");
 }
 
 function renderClasses() {
@@ -426,10 +553,11 @@ function renderClasses() {
             <td class="p-2">${schoolClass.className}</td>
             <td class="p-2">${schoolClass.grade}</td>
             <td class="p-2">${schoolClass.academicYear}</td>
-            <td class="p-2"></td>
+            <td class="p-2" data-role="actions"></td>
+            <td class="p-2 text-slate-600">${schoolClass.notes || ""}</td>
         `;
 
-        const actionsCell = row.querySelector("td:last-child");
+        const actionsCell = row.querySelector("td[data-role=\"actions\"]");
 
         const editButton = document.createElement("button");
         editButton.type = "button";
@@ -441,6 +569,9 @@ function renderClasses() {
             classNameInput.value = schoolClass.className;
             classGradeInput.value = schoolClass.grade;
             classYearInput.value = schoolClass.academicYear;
+            if (classNotesInput) {
+                classNotesInput.value = schoolClass.notes || "";
+            }
         });
 
         const deleteButton = document.createElement("button");
@@ -478,6 +609,15 @@ async function refreshAll() {
     renderSubjects();
     renderClasses();
     renderSubjectPageClasses();
+    renderAssignmentClassOptions();
+
+    if (assignmentClassSelect && assignmentClassSelect.value) {
+        const selectedClass = schoolClasses.find((schoolClass) => schoolClass.id === assignmentClassSelect.value);
+        const selectedIds = selectedClass ? selectedClass.subjects.map((subject) => subject.id) : [];
+        renderAssignmentSubjectOptions(selectedIds);
+    } else {
+        renderAssignmentSubjectOptions([]);
+    }
 }
 
 subjectForm.addEventListener("submit", async (event) => {
@@ -533,6 +673,7 @@ classForm.addEventListener("submit", async (event) => {
     const className = classNameInput.value.trim();
     const grade = classGradeInput.value.trim();
     const academicYear = classYearInput.value.trim();
+    const notes = classNotesInput ? classNotesInput.value.trim() : "";
 
     if (!className || !grade || !academicYear) {
         window.alert("All fields are required.");
@@ -554,11 +695,13 @@ classForm.addEventListener("submit", async (event) => {
         return;
     }
 
+    const existing = id ? schoolClasses.find((schoolClass) => schoolClass.id === id) : null;
     const payload = {
         className,
         grade,
         academicYear,
-        subjectIds: []
+        notes,
+        subjectIds: existing ? existing.subjects.map((subject) => subject.id) : []
     };
 
     try {
@@ -585,6 +728,82 @@ classForm.addEventListener("submit", async (event) => {
 
 subjectResetButton.addEventListener("click", resetSubjectForm);
 classResetButton.addEventListener("click", resetClassForm);
+
+if (assignmentClassSelect) {
+    assignmentClassSelect.addEventListener("change", () => {
+        const selectedClass = schoolClasses.find((schoolClass) => schoolClass.id === assignmentClassSelect.value);
+        const selectedIds = selectedClass ? selectedClass.subjects.map((subject) => subject.id) : [];
+        renderAssignmentSubjectOptions(selectedIds);
+    });
+}
+
+if (assignmentResetButton) {
+    assignmentResetButton.addEventListener("click", () => {
+        if (assignmentClassSelect) {
+            assignmentClassSelect.value = "";
+        }
+        renderAssignmentSubjectOptions([]);
+    });
+}
+
+if (assignmentCloseButton) {
+    assignmentCloseButton.addEventListener("click", closeAssignmentModal);
+}
+
+if (subjectAssignmentModal) {
+    subjectAssignmentModal.addEventListener("click", (event) => {
+        if (event.target === subjectAssignmentModal) {
+            closeAssignmentModal();
+        }
+    });
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && subjectAssignmentModal && !subjectAssignmentModal.classList.contains("hidden")) {
+        closeAssignmentModal();
+    }
+});
+
+if (subjectAssignmentForm) {
+    subjectAssignmentForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!canManageClasses) {
+            return;
+        }
+
+        const classId = assignmentClassSelect ? assignmentClassSelect.value.trim() : "";
+        if (!classId) {
+            window.alert("Please select a class.");
+            return;
+        }
+
+        const schoolClass = schoolClasses.find((item) => item.id === classId);
+        if (!schoolClass) {
+            window.alert("Selected class not found.");
+            return;
+        }
+
+        const payload = {
+            className: schoolClass.className,
+            grade: schoolClass.grade,
+            academicYear: schoolClass.academicYear,
+            notes: schoolClass.notes || "",
+            subjectIds: selectedAssignmentSubjectIds()
+        };
+
+        try {
+            await requestJson(`/api/admin/classes/${classId}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Subjects assigned successfully!");
+            await refreshAll();
+            closeAssignmentModal();
+        } catch (error) {
+            window.alert(`Failed to assign subjects: ${error.message}`);
+        }
+    });
+}
 
 if (classGradeFilter) {
     classGradeFilter.addEventListener("change", renderClasses);
