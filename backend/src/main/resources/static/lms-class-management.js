@@ -28,9 +28,10 @@ const assignmentClassSelect = document.getElementById("assignment-class-select")
 const assignmentSubjectList = document.getElementById("assignment-subject-list");
 const assignmentResetButton = document.getElementById("assignment-reset");
 const assignmentCloseButton = document.getElementById("assignment-close");
-const studentsSection = document.getElementById("students");
+const usersSection = document.getElementById("users");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
+const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
 
 let subjects = [];
@@ -101,7 +102,7 @@ if (authWarning) {
         authWarning.textContent = "Student access is read-only. You can view classes and subjects, but you cannot create, edit, or delete records.";
         authWarning.classList.remove("hidden");
     } else if (currentRole === "teacher") {
-        authWarning.textContent = "User access can manage classes and subjects, while the students, teachers, and fees areas remain informational.";
+        authWarning.textContent = "User access can manage classes and subjects, while the users, fees, and exams areas remain informational.";
         authWarning.classList.remove("hidden");
     }
 }
@@ -133,13 +134,14 @@ if (subjectAssignmentModal && !canManageClasses) {
     subjectAssignmentModal.classList.add("opacity-75");
 }
 
-const studentsNavLink = document.querySelector('a.lms-nav-link[href="#students"]');
+const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
 const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
+const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
 
 if (currentRole !== "admin") {
-    if (studentsNavLink) {
-        studentsNavLink.classList.add("hidden");
+    if (usersNavLink) {
+        usersNavLink.classList.add("hidden");
     }
     if (teachersNavLink) {
         teachersNavLink.classList.add("hidden");
@@ -147,14 +149,18 @@ if (currentRole !== "admin") {
     if (feesNavLink) {
         feesNavLink.classList.add("hidden");
     }
+    if (examsNavLink) {
+        examsNavLink.classList.add("hidden");
+    }
 }
 
 const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
-    students: studentsSection,
+    users: usersSection,
     teachers: teachersSection,
-    fees: feesSection
+    fees: feesSection,
+    exams: examsSection
 };
 
 function pageFromHash() {
@@ -176,7 +182,7 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "students", "teachers", "fees"] : ["classes", "subjects"];
+    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "teachers", "fees", "exams"] : ["classes", "subjects"];
     const page = pageFromHash();
 
     if (!page) {
