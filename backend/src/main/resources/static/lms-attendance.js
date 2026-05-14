@@ -29,7 +29,7 @@ let attendanceInitialised = false;
 // Load classes on init
 async function initAttendance() {
     try {
-        const classes = await requestJson('/api/classes');
+        const classes = await requestJson('/api/admin/classes');
         attClassSelect.innerHTML = '<option value="">-- Select a class --</option>';
         classes.forEach(c => {
             const opt = document.createElement("option");
@@ -77,7 +77,7 @@ attLoadBtn.addEventListener("click", async () => {
         const attResponse = await requestJson(`/api/attendance?classId=${classId}&date=${date}`);
         
         // 2. Fetch students for this class
-        const students = await requestJson(`/api/classes/${classId}/students`);
+        const students = await requestJson(`/api/admin/students?classId=${encodeURIComponent(classId)}`);
         if (!students || students.length === 0) {
             alert("No students found in this class.");
             return;
@@ -117,11 +117,12 @@ function renderStudentTable(students, existingRecords = []) {
     students.forEach(student => {
         const status = statusMap[student.id] || "PRESENT"; // Default to present for new
         
+        const studentName = student.fullName || student.name || `${student.firstName || ""} ${student.lastName || ""}`.trim();
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200 hover:bg-slate-50";
         
         row.innerHTML = `
-            <td class="p-3 font-medium text-slate-900">${student.name}</td>
+            <td class="p-3 font-medium text-slate-900">${studentName || "-"}</td>
             <td class="p-3 text-center">
                 <input type="radio" name="student_${student.id}" value="PRESENT" ${status === 'PRESENT' ? 'checked' : ''} class="w-4 h-4 text-teal-600 focus:ring-teal-600" />
             </td>
