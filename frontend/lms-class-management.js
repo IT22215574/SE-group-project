@@ -34,6 +34,7 @@ const assignmentSubjectList = document.getElementById("assignment-subject-list")
 const assignmentResetButton = document.getElementById("assignment-reset");
 const assignmentCloseButton = document.getElementById("assignment-close");
 const usersSection = document.getElementById("users");
+const attendanceSection = document.getElementById("attendance");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
 const examsSection = document.getElementById("exams");
@@ -149,6 +150,7 @@ if (subjectAssignmentModal && !canManageClasses) {
 }
 
 const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const attendanceNavLink = document.querySelector('a.lms-nav-link[href="#attendance"]');
 const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
@@ -157,6 +159,9 @@ if (currentRole !== "admin") {
     if (usersNavLink) {
         usersNavLink.classList.add("hidden");
     }
+  if (attendanceNavLink) {
+    attendanceNavLink.classList.add("hidden");
+  }
     if (teachersNavLink) {
         teachersNavLink.classList.add("hidden");
     }
@@ -172,6 +177,7 @@ const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
     users: usersSection,
+  attendance: attendanceSection,
     teachers: teachersSection,
     fees: feesSection,
     exams: examsSection
@@ -196,7 +202,7 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-    const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "teachers", "fees", "exams"] : ["classes", "subjects"];
+  const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "attendance", "teachers", "fees", "exams"] : ["classes", "subjects"];
     const page = pageFromHash();
 
   if (!page) {

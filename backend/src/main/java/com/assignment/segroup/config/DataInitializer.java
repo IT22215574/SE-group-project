@@ -5,6 +5,7 @@ import com.assignment.segroup.model.Subject;
 import com.assignment.segroup.model.Teacher;
 import com.assignment.segroup.repository.StudentRepository;
 import com.assignment.segroup.repository.SubjectRepository;
+import com.assignment.segroup.repository.TeacherRepository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
