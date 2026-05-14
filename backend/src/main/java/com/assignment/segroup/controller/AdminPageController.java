@@ -10,4 +10,9 @@ public class AdminPageController {
     public String adminClassPage() {
         return "forward:/admin/classes.html";
     }
+
+    @GetMapping("/admin/students")
+    public String adminStudentPage() {
+        return "forward:/admin/students.html";
+    }
 }
