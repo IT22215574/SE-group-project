@@ -184,7 +184,7 @@
     </section>
 
     <!-- ===== STUDENT MANAGEMENT ===== -->
-    <section id="students" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+    <section id="students" class="mt-6 hidden space-y-6">
         <div id="user-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-700">Students</p>
             <h2 class="mt-1 text-xl font-bold text-slate-950">Student Form</h2>
@@ -196,11 +196,17 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Email</label>
-                    <input id="user-email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="john@example.com" required />
+                    <input id="user-email" type="email" class="w-full rounded-lg border border-slate-300 p-2" placeholder="john@example.com" />
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Phone</label>
                     <input id="user-phone" class="w-full rounded-lg border border-slate-300 p-2" placeholder="+94 7X XXX XXXX" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Class</label>
+                    <select id="user-class" class="w-full rounded-lg border border-slate-300 p-2">
+                        <option value="">Select class</option>
+                    </select>
                 </div>
                 <div class="flex gap-2">
                     <button class="rounded-lg bg-violet-600 px-4 py-2 text-white" type="submit">Save Student</button>
@@ -224,6 +230,7 @@
                         <th class="p-3">Name</th>
                         <th class="p-3">Email</th>
                         <th class="p-3">Phone</th>
+                        <th class="p-3">Class</th>
                         <th class="p-3">Actions</th>
                     </tr>
                     </thead>

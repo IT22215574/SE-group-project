@@ -9,6 +9,7 @@ const userIdInput = document.getElementById("user-id");
 const userNameInput = document.getElementById("user-name");
 const userEmailInput = document.getElementById("user-email");
 const userPhoneInput = document.getElementById("user-phone");
+const userClassSelect = document.getElementById("user-class");
 const userResetButton = document.getElementById("user-reset");
 const userTableBody = document.getElementById("user-table-body");
 
@@ -27,6 +28,7 @@ const feeFilterUser = document.getElementById("fee-filter-user");
 // ─── State ──────────────────────────────────────────────────────────
 let users = [];
 let fees = [];
+// schoolClasses is declared and shared from lms-class-management.js
 
 // ─── Helpers (reuse API_BASE from lms-class-management.js) ──────────
 async function requestJsonUF(path, options = {}) {
@@ -56,6 +58,9 @@ function resetUserForm() {
     userNameInput.value = "";
     userEmailInput.value = "";
     userPhoneInput.value = "";
+    if (userClassSelect) {
+        userClassSelect.value = "";
+    }
 }
 
 function resetFeeForm() {
@@ -71,16 +76,24 @@ function resetFeeForm() {
 function renderUsers() {
     userTableBody.innerHTML = "";
 
+    const classLookup = new Map(
+        schoolClasses.map((schoolClass) => [schoolClass.id, schoolClass])
+    );
+
     const studentUsers = users.filter((user) => user.role === "student");
 
     studentUsers.forEach((user) => {
+        const classInfo = user.classId ? classLookup.get(user.classId) : null;
+        const classLabel = classInfo ? `${classInfo.className} (Grade ${classInfo.grade})` : "—";
+        const emailLabel = user.email ? user.email : "—";
         const row = document.createElement("tr");
         row.className = "border-b border-slate-200";
 
         row.innerHTML = `
             <td class="p-2 font-medium">${user.name}</td>
-            <td class="p-2">${user.email}</td>
+            <td class="p-2">${emailLabel}</td>
             <td class="p-2">${user.phone || "—"}</td>
+            <td class="p-2">${classLabel}</td>
             <td class="p-2"></td>
         `;
 
@@ -93,8 +106,11 @@ function renderUsers() {
         editButton.addEventListener("click", () => {
             userIdInput.value = user.id;
             userNameInput.value = user.name;
-            userEmailInput.value = user.email;
+            userEmailInput.value = user.email || "";
             userPhoneInput.value = user.phone || "";
+            if (userClassSelect) {
+                userClassSelect.value = user.classId || "";
+            }
             window.location.hash = "#students";
         });
 
@@ -194,7 +210,7 @@ function populateUserDropdowns() {
     studentUsers.forEach((user) => {
         const option = document.createElement("option");
         option.value = user.id;
-        option.textContent = `${user.name} (${user.email})`;
+        option.textContent = `${user.name} (${user.email || "No email"})`;
         feeUserSelect.appendChild(option);
     });
     feeUserSelect.value = currentFeeUser;
@@ -205,23 +221,48 @@ function populateUserDropdowns() {
     studentUsers.forEach((user) => {
         const option = document.createElement("option");
         option.value = user.id;
-        option.textContent = `${user.name} (${user.email})`;
+        option.textContent = `${user.name} (${user.email || "No email"})`;
         feeFilterUser.appendChild(option);
     });
     feeFilterUser.value = currentFilter;
 }
 
+// ─── Populate class dropdown (student form) ────────────────────────
+function populateClassDropdown() {
+    if (!userClassSelect) {
+        return;
+    }
+
+    const currentClass = userClassSelect.value;
+    userClassSelect.innerHTML = '<option value="">Select class</option>';
+
+    schoolClasses
+        .slice()
+        .sort((a, b) => String(a.className).localeCompare(String(b.className), undefined, { sensitivity: "base" }))
+        .forEach((schoolClass) => {
+            const option = document.createElement("option");
+            option.value = schoolClass.id;
+            option.textContent = `${schoolClass.className} (Grade ${schoolClass.grade})`;
+            userClassSelect.appendChild(option);
+        });
+
+    userClassSelect.value = currentClass;
+}
+
 // ─── Refresh all user & fee data ────────────────────────────────────
 async function refreshUsersAndFees() {
-    const [userData, feeData] = await Promise.all([
+    const [userData, feeData, classData] = await Promise.all([
         requestJsonUF("/api/admin/users"),
-        requestJsonUF("/api/admin/fees")
+        requestJsonUF("/api/admin/fees"),
+        requestJsonUF("/api/admin/classes")
     ]);
 
     users = userData;
     fees = feeData;
+    schoolClasses = classData;
 
     populateUserDropdowns();
+    populateClassDropdown();
     renderUsers();
     renderFees();
 }
@@ -234,13 +275,14 @@ userForm.addEventListener("submit", async (event) => {
     const name = userNameInput.value.trim();
     const email = userEmailInput.value.trim();
     const phone = userPhoneInput.value.trim();
+    const classId = userClassSelect ? userClassSelect.value.trim() : "";
 
-    if (!name || !email) {
-        window.alert("Name and email are required.");
+    if (!name) {
+        window.alert("Name is required.");
         return;
     }
 
-    const payload = { name, email, role: "student", phone };
+    const payload = { name, email, role: "student", phone, classId };
 
     try {
         if (id) {
