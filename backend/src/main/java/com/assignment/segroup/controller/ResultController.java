@@ -37,6 +37,12 @@ public class ResultController {
         return resultRepository.save(result);
     }
 
+    // ── READ (Teacher – all results) ─────────────────────────────────────────
+    @GetMapping
+    public List<Result> getAllResults() {
+        return resultRepository.findAll();
+    }
+
     // ── READ (Teacher – all results for a class) ─────────────────────────────
     @GetMapping("/class/{classID}")
     public List<Result> getResultsByClass(@PathVariable String classID) {

@@ -134,8 +134,7 @@ async function loadTeacherResults() {
         if (classID) {
             resultsList = await requestJson(`/api/results/class/${classID}`);
         } else {
-            // No class selected, clear list
-            resultsList = [];
+            resultsList = await requestJson(`/api/results`);
         }
         
         renderTeacherResults();
