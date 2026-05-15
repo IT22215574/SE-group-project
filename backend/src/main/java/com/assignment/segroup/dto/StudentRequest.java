@@ -47,7 +47,7 @@ public class StudentRequest {
     private String guardianName;
 
     @NotBlank(message = "Guardian phone is required")
-    @Pattern(regexp = "^[0-9+()\\- ]{7,20}$", message = "Guardian phone number is invalid")
+    @Pattern(regexp = "^0\\d{9}$", message = "Guardian phone number must be 10 digits and start with 0")
     private String guardianPhone;
 
     @Email(message = "Guardian email must be valid")
