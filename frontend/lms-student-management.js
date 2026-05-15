@@ -81,7 +81,14 @@ async function loadStudents() {
   const keyword = searchInput.value.trim();
   const url = keyword ? `/api/admin/students?keyword=${encodeURIComponent(keyword)}` : "/api/admin/students";
 
-  const students = await requestJson(url);
+  let students;
+  try {
+    students = await requestJson(url);
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="6" class="p-3 text-red-600">Failed to load students: ${err.message}</td></tr>`;
+    return;
+  }
+
   tableBody.innerHTML = "";
 
   students.forEach(student => {
@@ -118,21 +125,25 @@ form.addEventListener("submit", async (e) => {
   const id = document.getElementById("student-id").value;
   const data = getFormData();
 
-  if (id) {
-    await requestJson(`/api/admin/students/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data)
-    });
-  } else {
-    await requestJson("/api/admin/students", {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-  }
+  try {
+    if (id) {
+      await requestJson(`/api/admin/students/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data)
+      });
+    } else {
+      await requestJson("/api/admin/students", {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+    }
 
-  form.reset();
-  document.getElementById("student-id").value = "";
-  await loadStudents();
+    form.reset();
+    document.getElementById("student-id").value = "";
+    await loadStudents();
+  } catch (err) {
+    alert(`Failed to save student: ${err.message}`);
+  }
 });
 
 resetBtn.addEventListener("click", () => {
