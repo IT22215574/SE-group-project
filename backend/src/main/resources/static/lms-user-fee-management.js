@@ -267,10 +267,6 @@ async function refreshUsersAndFees() {
     renderFees();
 }
 
-window.addEventListener("classes:updated", () => {
-    populateClassDropdown();
-});
-
 // ─── Form submit: Users ─────────────────────────────────────────────
 userForm.addEventListener("submit", async (event) => {
     event.preventDefault();

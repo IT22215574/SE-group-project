@@ -30,7 +30,7 @@ let attendanceInitialised = false;
 async function initAttendance() {
     try {
         const classes = await requestJson('/api/admin/classes');
-        attClassSelect.innerHTML = '<option value="">-- Select a class --</option>';
+        attClassSelect.innerHTML = '<option value="">— Select a class —</option>';
         classes.forEach(c => {
             const opt = document.createElement("option");
             opt.value = c.id;

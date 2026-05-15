@@ -1,5 +1,5 @@
 const API_BASE = (
-  window.localStorage.getItem("lmsApiBase") || "http://localhost:5001"
+  window.localStorage.getItem("lmsApiBase") || ""
 ).replace(/\/$/, "");
 
 const subjectForm = document.getElementById("subject-form");
