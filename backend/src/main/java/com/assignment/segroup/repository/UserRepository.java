@@ -9,6 +9,9 @@ import java.util.Optional;
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
 
+    // Used by AdminUserController (main branch) — fixes build error
+    boolean existsByEmail(String email);
+
     // Used by Notification & Result module (feature branch)
     List<User> findByRoleAndClassID(String role, String classID);
 
