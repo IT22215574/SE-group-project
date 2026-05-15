@@ -15,17 +15,28 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepo;
     private final StudentRepository studentRepo;
     private final SchoolClassRepository classRepo;
+    private final UserRepository userRepo;
 
     public AttendanceService(AttendanceRepository attendanceRepo,
                              StudentRepository studentRepo,
-                             SchoolClassRepository classRepo) {
+                             SchoolClassRepository classRepo,
+                             UserRepository userRepo) {
         this.attendanceRepo = attendanceRepo;
         this.studentRepo = studentRepo;
         this.classRepo = classRepo;
+        this.userRepo = userRepo;
     }
 
-    public List<Student> getStudentsByClassId(String classId) {
-        return studentRepo.findByClassId(classId);
+    public List<AttendanceStudentResponse> getStudentsByClassId(String classId) {
+        List<Student> students = studentRepo.findByClassId(classId);
+        if (!students.isEmpty()) {
+            return students.stream()
+                    .map(student -> new AttendanceStudentResponse(student.getId(), student.getName()))
+                    .collect(Collectors.toList());
+        }
+        return userRepo.findByRoleIgnoreCaseAndClassId("student", classId).stream()
+                .map(user -> new AttendanceStudentResponse(user.getId(), user.getName()))
+                .collect(Collectors.toList());
     }
 
     public Optional<AttendanceResponse> getAttendance(String classId, LocalDate date) {
@@ -97,6 +108,10 @@ public class AttendanceService {
                 .orElseThrow(() -> new RuntimeException("Class not found with id: " + classId));
 
         List<Student> students = studentRepo.findByClassId(classId);
+        List<User> userStudents = Collections.emptyList();
+        if (students.isEmpty()) {
+            userStudents = userRepo.findByRoleIgnoreCaseAndClassId("student", classId);
+        }
         List<Attendance> attendanceList = attendanceRepo.findByClassId(classId);
 
         int totalDays = attendanceList.size();
@@ -124,13 +139,31 @@ public class AttendanceService {
                     ? Math.round(((present + late) * 100.0 / totalDays) * 10.0) / 10.0
                     : 0;
             return new ClassReportResponse.StudentSummary(s.getId(), s.getName(), present, absent, late, pct);
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        if (!userStudents.isEmpty()) {
+            summaries.addAll(userStudents.stream().map(u -> {
+                List<AttendanceRecord> recs = byStudent.getOrDefault(u.getId(), Collections.emptyList());
+                int present = 0, absent = 0, late = 0;
+                for (AttendanceRecord r : recs) {
+                    switch (r.getStatus()) {
+                        case PRESENT -> present++;
+                        case ABSENT -> absent++;
+                        case LATE -> late++;
+                    }
+                }
+                double pct = totalDays > 0
+                        ? Math.round(((present + late) * 100.0 / totalDays) * 10.0) / 10.0
+                        : 0;
+                return new ClassReportResponse.StudentSummary(u.getId(), u.getName(), present, absent, late, pct);
+            }).collect(Collectors.toList()));
+        }
 
         ClassReportResponse report = new ClassReportResponse();
         report.setClassId(classId);
         report.setClassName(schoolClass.getClassName());
         report.setTotalDays(totalDays);
-        report.setTotalStudents(students.size());
+        report.setTotalStudents(students.isEmpty() ? userStudents.size() : students.size());
         report.setStudents(summaries);
         return report;
     }
@@ -161,9 +194,14 @@ public class AttendanceService {
     private List<AttendanceRecord> buildRecords(List<AttendanceRequest.StudentAttendance> studentList) {
         List<AttendanceRecord> records = new ArrayList<>();
         for (AttendanceRequest.StudentAttendance sa : studentList) {
-            Student student = studentRepo.findById(sa.getStudentId())
+            Student student = studentRepo.findById(sa.getStudentId()).orElse(null);
+            if (student != null) {
+                records.add(new AttendanceRecord(student.getId(), student.getName(), sa.getStatus()));
+                continue;
+            }
+            User user = userRepo.findById(sa.getStudentId())
                     .orElseThrow(() -> new RuntimeException("Student not found with id: " + sa.getStudentId()));
-            records.add(new AttendanceRecord(student.getId(), student.getName(), sa.getStatus()));
+            records.add(new AttendanceRecord(user.getId(), user.getName(), sa.getStatus()));
         }
         return records;
     }

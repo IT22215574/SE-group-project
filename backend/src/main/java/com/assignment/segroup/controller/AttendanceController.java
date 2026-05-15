@@ -38,7 +38,7 @@ public class AttendanceController {
 
     // ── Get students by class ────────────────────────────────────
     @GetMapping("/classes/{id}/students")
-    public ResponseEntity<List<Student>> getStudentsByClass(@PathVariable("id") String id) {
+    public ResponseEntity<List<AttendanceStudentResponse>> getStudentsByClass(@PathVariable("id") String id) {
         return ResponseEntity.ok(attendanceService.getStudentsByClassId(id));
     }
 

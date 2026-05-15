@@ -14,10 +14,7 @@ const attUpdateBtn = document.getElementById("att-update-btn");
 const attDeleteBtn = document.getElementById("att-delete-btn");
 
 const attReportWrapper = document.getElementById("att-report-wrapper");
-const attReportBtn = document.getElementById("att-report-btn");
 const attReportContent = document.getElementById("att-report-content");
-const attReportDays = document.getElementById("att-report-days");
-const attReportStudents = document.getElementById("att-report-students");
 const attReportTableBody = document.getElementById("att-report-table-body");
 const attDownloadReportBtn = document.getElementById("att-download-report-btn");
 
@@ -54,37 +51,37 @@ window.addEventListener("hashchange", () => {
         }
     } else {
         if (attDownloadReportBtn) attDownloadReportBtn.classList.add("hidden");
-        attReportContent.classList.add("hidden");
+        if (attReportWrapper) attReportWrapper.classList.add("hidden");
+        if (attReportContent) attReportContent.classList.add("hidden");
         currentReportData = null;
     }
 });
 
-// Load Attendance Records
-attLoadBtn.addEventListener("click", async () => {
+async function loadAttendance() {
     const classId = attClassSelect.value;
     const date = attDateInput.value;
-    
+
     if (!classId || !date) {
         alert("Please select both a class and a date.");
-        return;
+        return false;
     }
-    
+
     try {
         attFormWrapper.classList.add("hidden");
-        attReportWrapper.classList.add("hidden");
-        
+        if (attReportWrapper) attReportWrapper.classList.add("hidden");
+        if (attReportContent) attReportContent.classList.add("hidden");
         // 1. Check if attendance exists
         const attResponse = await requestJson(`/api/attendance?classId=${classId}&date=${date}`);
-        
+
         // 2. Fetch students for this class
-        const students = await requestJson(`/api/admin/users?role=student&classId=${encodeURIComponent(classId)}`);
+        const students = await requestJson(`/api/classes/${encodeURIComponent(classId)}/students`);
         if (!students || students.length === 0) {
             alert("No students found in this class.");
-            return;
+            return false;
         }
-        
+
         currentStudents = students;
-        
+
         if (attResponse && attResponse.exists !== false) {
             // Existing attendance
             setupEditMode(attResponse, students);
@@ -92,18 +89,23 @@ attLoadBtn.addEventListener("click", async () => {
             // New attendance
             setupCreateMode(students);
         }
-        
+
         attFormSubtitle.textContent = `Date: ${date} | Class: ${attClassSelect.options[attClassSelect.selectedIndex].text}`;
         attFormWrapper.classList.remove("hidden");
-        attReportWrapper.classList.remove("hidden");
-        attReportContent.classList.add("hidden"); // hide report content until explicitly generated
+        if (attReportWrapper) attReportWrapper.classList.remove("hidden");
+        if (attReportContent) attReportContent.classList.add("hidden");
+        if (attReportTableBody) attReportTableBody.innerHTML = "";
         if (attDownloadReportBtn) attDownloadReportBtn.classList.add("hidden");
         currentReportData = null;
-        
+        return true;
     } catch (err) {
         alert("Error loading attendance: " + err.message);
+        return false;
     }
-});
+}
+
+// Load Attendance Records
+attLoadBtn.addEventListener("click", loadAttendance);
 
 function renderStudentTable(students, existingRecords = []) {
     attStudentTableBody.innerHTML = "";
@@ -182,6 +184,33 @@ function getGridData() {
     return { classId, date, students: studentsData };
 }
 
+async function fetchReportForClass(classId) {
+    const report = await requestJson(`/api/classes/${classId}/report`);
+    currentReportData = report;
+    if (attReportTableBody) {
+        attReportTableBody.innerHTML = "";
+        report.students.forEach(s => {
+            const row = document.createElement("tr");
+            row.className = "border-b border-slate-200 hover:bg-slate-50";
+
+            const pctColor = s.attendancePercentage >= 80 ? 'text-emerald-600' :
+                             s.attendancePercentage >= 50 ? 'text-amber-600' : 'text-red-600';
+
+            row.innerHTML = `
+                <td class="p-3 font-medium text-slate-900">${s.studentName}</td>
+                <td class="p-3 text-center">${s.presentCount}</td>
+                <td class="p-3 text-center">${s.absentCount}</td>
+                <td class="p-3 text-center">${s.lateCount}</td>
+                <td class="p-3 text-center font-bold ${pctColor}">${s.attendancePercentage}%</td>
+            `;
+            attReportTableBody.appendChild(row);
+        });
+    }
+    if (attReportWrapper) attReportWrapper.classList.remove("hidden");
+    if (attReportContent) attReportContent.classList.remove("hidden");
+    if (attDownloadReportBtn) attDownloadReportBtn.classList.remove("hidden");
+}
+
 // Save New
 attSaveBtn.addEventListener("click", async () => {
     try {
@@ -191,7 +220,10 @@ attSaveBtn.addEventListener("click", async () => {
             body: JSON.stringify(payload)
         });
         alert("Attendance saved successfully!");
-        attLoadBtn.click(); // Reload to enter edit mode
+        const loaded = await loadAttendance();
+        if (loaded) {
+            await fetchReportForClass(payload.classId);
+        }
     } catch (err) {
         alert("Failed to save: " + err.message);
     }
@@ -207,7 +239,10 @@ attUpdateBtn.addEventListener("click", async () => {
             body: JSON.stringify(payload)
         });
         alert("Attendance updated successfully!");
-        attLoadBtn.click(); // Reload
+        const loaded = await loadAttendance();
+        if (loaded) {
+            await fetchReportForClass(payload.classId);
+        }
     } catch (err) {
         alert("Failed to update: " + err.message);
     }
@@ -226,45 +261,6 @@ attDeleteBtn.addEventListener("click", async () => {
         attLoadBtn.click(); // Reload (will enter create mode)
     } catch (err) {
         alert("Failed to delete: " + err.message);
-    }
-});
-
-// Class Report
-attReportBtn.addEventListener("click", async () => {
-    const classId = attClassSelect.value;
-    if (!classId) {
-        alert("Please select a class first.");
-        return;
-    }
-    
-    try {
-        const report = await requestJson(`/api/classes/${classId}/report`);
-        
-        attReportDays.textContent = report.totalDays;
-        attReportStudents.textContent = report.totalStudents;
-        
-        attReportTableBody.innerHTML = "";
-        report.students.forEach(s => {
-            const row = document.createElement("tr");
-            row.className = "border-b border-slate-200 hover:bg-slate-50";
-            
-            const pctColor = s.attendancePercentage >= 80 ? 'text-emerald-600' :
-                             s.attendancePercentage >= 50 ? 'text-amber-600' : 'text-red-600';
-                             
-            row.innerHTML = `
-                <td class="p-3 font-medium text-slate-900">${s.studentName}</td>
-                <td class="p-3 text-center">${s.presentCount}</td>
-                <td class="p-3 text-center">${s.absentCount}</td>
-                <td class="p-3 text-center">${s.lateCount}</td>
-                <td class="p-3 text-center font-bold ${pctColor}">${s.attendancePercentage}%</td>
-            `;
-            attReportTableBody.appendChild(row);
-        });
-        attReportContent.classList.remove("hidden");
-        currentReportData = report;
-        if (attDownloadReportBtn) attDownloadReportBtn.classList.remove("hidden");
-    } catch (err) {
-        alert("Failed to load report: " + err.message);
     }
 });
 
