@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,8 +37,14 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public List<UserResponse> listUsers() {
+    public List<UserResponse> listUsers(@RequestParam(required = false) String role,
+                                        @RequestParam(required = false) String classId) {
+        String roleFilter = normalizeOptional(role);
+        String classIdFilter = normalizeOptional(classId);
+
         return userRepository.findAll().stream()
+                .filter(user -> roleFilter == null || roleFilter.equalsIgnoreCase(user.getRole()))
+                .filter(user -> classIdFilter == null || classIdFilter.equals(user.getClassId()))
                 .sorted(Comparator.comparing(User::getName, String.CASE_INSENSITIVE_ORDER))
                 .map(this::toResponse)
                 .toList();
@@ -53,7 +60,8 @@ public class AdminUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody UserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail().trim())) {
+        String email = normalizeOptional(request.getEmail());
+        if (email != null && userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
@@ -86,9 +94,10 @@ public class AdminUserController {
 
     private void applyRequestToUser(User user, UserRequest request) {
         user.setName(request.getName().trim());
-        user.setEmail(request.getEmail().trim());
+        user.setEmail(normalizeOptional(request.getEmail()));
         user.setRole(request.getRole().trim());
         user.setPhone(request.getPhone() != null ? request.getPhone().trim() : "");
+        user.setClassId(normalizeOptional(request.getClassId()));
     }
 
     private UserResponse toResponse(User user) {
@@ -97,7 +106,16 @@ public class AdminUserController {
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                user.getPhone()
+                user.getPhone(),
+                user.getClassId()
         );
+    }
+
+    private String normalizeOptional(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

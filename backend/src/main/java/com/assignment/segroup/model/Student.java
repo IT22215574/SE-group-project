@@ -8,13 +8,39 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.time.LocalDate;
-
 @Document(collection = "students")
 public class Student {
 
     @Id
     private String id;
 
+    private String name;
+
+    public String getName() {
+        if (firstName != null && lastName != null) {
+            return firstName + " " + lastName;
+        }
+        if (firstName != null) return firstName;
+        if (lastName != null) return lastName;
+        return name != null ? name : "";
+    }
+
+    public void setName(String name) {
+        if (name != null) {
+            String[] parts = name.split(" ", 2);
+            this.firstName = parts[0];
+            if (parts.length > 1) {
+                this.lastName = parts[1];
+            }
+        }
+    }
+
+    public Student() {}
+
+    public Student(String name, String classId) {
+        setName(name);
+        this.classId = classId;
+    }
     @Indexed(unique = true)
     private String admissionNo;
 
@@ -58,6 +84,10 @@ public class Student {
     }
 
     public String getFirstName() {
+        if (firstName != null && !firstName.isBlank()) return firstName;
+        if (name != null && !name.isBlank()) {
+            return name.split(" ", 2)[0];
+        }
         return firstName;
     }
 
@@ -66,6 +96,11 @@ public class Student {
     }
 
     public String getLastName() {
+        if (lastName != null && !lastName.isBlank()) return lastName;
+        if (name != null && !name.isBlank()) {
+            String[] parts = name.split(" ", 2);
+            return parts.length > 1 ? parts[1] : "";
+        }
         return lastName;
     }
 
