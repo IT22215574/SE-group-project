@@ -121,7 +121,11 @@ function renderUsers() {
             if (userClassSelect) {
                 userClassSelect.value = user.classId || "";
             }
-            window.location.hash = "#students";
+            window.location.hash = "#users";
+            const formCard = document.getElementById("user-form-card");
+            if (formCard) {
+                formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
         });
 
         const deleteButton = document.createElement("button");

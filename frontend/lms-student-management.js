@@ -1,4 +1,19 @@
-// Relies on API_BASE and requestJson from lms-class-management.js
+const API_BASE = (
+  window.localStorage.getItem("lmsApiBase") || "http://localhost:5001"
+).replace(/\/$/, "");
+
+async function requestJson(url, options = {}) {
+  const response = await fetch(`${API_BASE}${url}`, {
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Request failed");
+  }
+  if (response.status === 204) return null;
+  return response.json();
+}
 
 const form = document.getElementById("student-form");
 const tableBody = document.getElementById("student-table-body");

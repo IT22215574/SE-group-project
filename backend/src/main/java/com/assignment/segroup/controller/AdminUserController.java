@@ -45,7 +45,8 @@ public class AdminUserController {
         return userRepository.findAll().stream()
                 .filter(user -> roleFilter == null || roleFilter.equalsIgnoreCase(user.getRole()))
                 .filter(user -> classIdFilter == null || classIdFilter.equals(user.getClassId()))
-                .sorted(Comparator.comparing(User::getName, String.CASE_INSENSITIVE_ORDER))
+                .filter(user -> user.getRole() != null)
+                .sorted(Comparator.comparing(User::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .map(this::toResponse)
                 .toList();
     }
