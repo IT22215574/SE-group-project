@@ -39,9 +39,34 @@ const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
 const examsSection = document.getElementById("exams");
 const navLinks = Array.from(document.querySelectorAll(".lms-nav-link"));
+const teacherForm = document.getElementById("teacher-form");
+const teacherFormCard = document.getElementById("teacher-form-card");
+const teacherIdInput = document.getElementById("teacher-id");
+const teacherCodeInput = document.getElementById("teacher-code");
+const teacherFirstNameInput = document.getElementById("teacher-first-name");
+const teacherLastNameInput = document.getElementById("teacher-last-name");
+const teacherEmailInput = document.getElementById("teacher-email");
+const teacherPhoneInput = document.getElementById("teacher-phone");
+const teacherGenderInput = document.getElementById("teacher-gender");
+const teacherSubjectInput = document.getElementById("teacher-subject");
+const teacherClassInput = document.getElementById("teacher-class");
+const teacherQualificationInput = document.getElementById("teacher-qualification");
+const teacherStatusInput = document.getElementById("teacher-status");
+const teacherResetButton = document.getElementById("teacher-reset");
+const teacherRefreshButton = document.getElementById("teacher-refresh");
+const teacherSearchInput = document.getElementById("teacher-search");
+const teacherFilterSubjectInput = document.getElementById("teacher-filter-subject");
+const teacherFilterClassInput = document.getElementById("teacher-filter-class");
+const teacherFilterStatusInput = document.getElementById("teacher-filter-status");
+const teacherTableBody = document.getElementById("teacher-table-body");
+const teacherStatTotal = document.getElementById("teacher-stat-total");
+const teacherStatActive = document.getElementById("teacher-stat-active");
+const teacherStatInactive = document.getElementById("teacher-stat-inactive");
+const teacherStatOnLeave = document.getElementById("teacher-stat-on-leave");
 
 let subjects = [];
 let schoolClasses = [];
+let teachers = [];
 let subjectMenuListenerBound = false;
 let subjectPage = 1;
 const subjectsPerRow = 5;
@@ -94,6 +119,7 @@ const canManageClasses =
   typeof roleCanManageClasses === "function"
     ? roleCanManageClasses(currentRole)
     : false;
+const canManageTeachers = currentRole === "admin";
 
 if (sessionBadge && currentAuth) {
   sessionBadge.textContent = `${roleLabel(currentRole)}: ${currentAuth.email}`;
@@ -138,6 +164,15 @@ if (classFormCard && !canManageClasses) {
     }
   });
   classFormCard.classList.add("opacity-75");
+}
+
+if (teacherFormCard && !canManageTeachers) {
+    teacherFormCard.querySelectorAll("input, select, button").forEach((element) => {
+        if (element.id !== "teacher-reset") {
+            element.disabled = true;
+        }
+    });
+    teacherFormCard.classList.add("opacity-75");
 }
 
 if (subjectAssignmentModal && !canManageClasses) {
@@ -198,6 +233,12 @@ function showOnlyPage(page) {
   const target = pageSections[page];
   if (target) {
     target.classList.remove("hidden");
+  }
+
+  if (page === "teachers") {
+    loadTeachers().catch((error) => {
+      window.alert(`Failed to load teachers: ${error.message}`);
+    });
   }
 }
 
@@ -653,6 +694,281 @@ function renderClasses() {
   });
 }
 
+function teacherStatusLabel(status) {
+    switch (status) {
+        case "ACTIVE":
+            return "Active";
+        case "INACTIVE":
+            return "Inactive";
+        case "ON_LEAVE":
+            return "On Leave";
+        default:
+            return status || "Unknown";
+    }
+}
+
+function teacherStatusClass(status) {
+    switch (status) {
+        case "ACTIVE":
+            return "bg-emerald-100 text-emerald-800";
+        case "INACTIVE":
+            return "bg-amber-100 text-amber-800";
+        case "ON_LEAVE":
+            return "bg-violet-100 text-violet-800";
+        default:
+            return "bg-slate-100 text-slate-700";
+    }
+}
+
+function buildTeacherQuery() {
+    const params = new URLSearchParams();
+    const keyword = teacherSearchInput ? teacherSearchInput.value.trim() : "";
+    const subjectId = teacherFilterSubjectInput ? teacherFilterSubjectInput.value.trim() : "";
+    const classId = teacherFilterClassInput ? teacherFilterClassInput.value.trim() : "";
+    const status = teacherFilterStatusInput ? teacherFilterStatusInput.value.trim() : "";
+
+    if (keyword) params.set("keyword", keyword);
+    if (subjectId) params.set("subjectId", subjectId);
+    if (classId) params.set("classId", classId);
+    if (status) params.set("status", status);
+
+    return `/api/admin/teachers${params.toString() ? `?${params.toString()}` : ""}`;
+}
+
+function populateTeacherSubjectOptions() {
+    const selects = [teacherSubjectInput, teacherFilterSubjectInput].filter(Boolean);
+    selects.forEach((select) => {
+        const currentValue = select.value;
+        const defaultText = select === teacherFilterSubjectInput ? "All Subjects" : "Select subject";
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+        subjects.forEach((subject) => {
+            const option = document.createElement("option");
+            option.value = subject.id;
+            option.textContent = subject.name;
+            select.appendChild(option);
+        });
+        select.value = currentValue;
+    });
+}
+
+function populateTeacherClassOptions() {
+    const selects = [teacherClassInput, teacherFilterClassInput].filter(Boolean);
+    selects.forEach((select) => {
+        const currentValue = select.value;
+        const defaultText = select === teacherFilterClassInput ? "All Classes" : "Select class";
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+        schoolClasses.forEach((schoolClass) => {
+            const option = document.createElement("option");
+            option.value = schoolClass.id;
+            option.textContent = schoolClass.className;
+            select.appendChild(option);
+        });
+        select.value = currentValue;
+    });
+}
+
+async function loadTeacherStats() {
+    if (!teacherStatTotal) {
+        return;
+    }
+    const stats = await requestJson("/api/admin/teachers/stats");
+    teacherStatTotal.textContent = stats.totalTeachers || 0;
+    teacherStatActive.textContent = stats.activeTeachers || 0;
+    teacherStatInactive.textContent = stats.inactiveTeachers || 0;
+    teacherStatOnLeave.textContent = stats.onLeaveTeachers || 0;
+}
+
+function renderTeachers() {
+    if (!teacherTableBody) {
+        return;
+    }
+    teacherTableBody.innerHTML = "";
+
+    if (teachers.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td class="p-4 text-sm text-slate-500" colspan="6">No teacher records found.</td>';
+        teacherTableBody.appendChild(row);
+        return;
+    }
+
+    teachers.forEach((teacher) => {
+        const row = document.createElement("tr");
+        row.className = "border-b border-slate-100 align-top last:border-0";
+
+        const idCell = document.createElement("td");
+        idCell.className = "p-3 font-semibold text-slate-800";
+        idCell.textContent = teacher.teacherId || "-";
+
+        const teacherCell = document.createElement("td");
+        teacherCell.className = "p-3";
+        const teacherName = document.createElement("p");
+        teacherName.className = "font-semibold text-slate-900";
+        teacherName.textContent = teacher.fullName || [teacher.firstName, teacher.lastName].filter(Boolean).join(" ") || "-";
+        const teacherContact = document.createElement("p");
+        teacherContact.className = "mt-1 text-xs text-slate-500";
+        teacherContact.textContent = [teacher.email, teacher.phone].filter(Boolean).join(" | ") || "No contact details";
+        teacherCell.append(teacherName, teacherContact);
+
+        const subjectCell = document.createElement("td");
+        subjectCell.className = "p-3 text-slate-700";
+        subjectCell.textContent = teacher.subjectName || "-";
+
+        const classCell = document.createElement("td");
+        classCell.className = "p-3 text-slate-700";
+        classCell.textContent = teacher.className || "-";
+
+        const statusCell = document.createElement("td");
+        statusCell.className = "p-3";
+        const statusBadge = document.createElement("span");
+        statusBadge.className = `rounded-full px-2.5 py-1 text-xs font-semibold ${teacherStatusClass(teacher.status)}`;
+        statusBadge.textContent = teacherStatusLabel(teacher.status);
+        statusCell.appendChild(statusBadge);
+
+        const actionsCell = document.createElement("td");
+        actionsCell.className = "p-3";
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700";
+        editButton.textContent = "Edit";
+        editButton.disabled = !canManageTeachers;
+        editButton.addEventListener("click", () => editTeacher(teacher.id));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white";
+        deleteButton.textContent = "Delete";
+        deleteButton.disabled = !canManageTeachers;
+        deleteButton.addEventListener("click", () => deleteTeacher(teacher.id, teacher.fullName || teacher.teacherId || "this teacher"));
+        actionsCell.append(editButton, deleteButton);
+
+        row.append(idCell, teacherCell, subjectCell, classCell, statusCell, actionsCell);
+        teacherTableBody.appendChild(row);
+    });
+}
+
+async function loadTeachers() {
+    if (!teacherTableBody) {
+        return;
+    }
+    const [teacherData] = await Promise.all([
+        requestJson(buildTeacherQuery()),
+        loadTeacherStats()
+    ]);
+    teachers = teacherData;
+    renderTeachers();
+}
+
+function resetTeacherForm() {
+    if (!teacherForm) {
+        return;
+    }
+    teacherIdInput.value = "";
+    teacherCodeInput.value = "";
+    teacherFirstNameInput.value = "";
+    teacherLastNameInput.value = "";
+    teacherEmailInput.value = "";
+    teacherPhoneInput.value = "";
+    teacherGenderInput.value = "";
+    teacherSubjectInput.value = "";
+    teacherClassInput.value = "";
+    teacherQualificationInput.value = "";
+    teacherStatusInput.value = "ACTIVE";
+}
+
+function teacherPayloadFromForm() {
+    const teacherId = teacherCodeInput.value.trim();
+    const firstName = teacherFirstNameInput.value.trim();
+    const lastName = teacherLastNameInput.value.trim();
+    const status = teacherStatusInput.value.trim();
+
+    if (!teacherId || !firstName || !lastName || !status) {
+        window.alert("Teacher ID, first name, last name, and status are required.");
+        return null;
+    }
+
+    return {
+        teacherId,
+        firstName,
+        lastName,
+        email: teacherEmailInput.value.trim(),
+        phone: teacherPhoneInput.value.trim(),
+        gender: teacherGenderInput.value.trim(),
+        subjectId: teacherSubjectInput.value.trim(),
+        classId: teacherClassInput.value.trim(),
+        qualification: teacherQualificationInput.value.trim(),
+        status
+    };
+}
+
+async function submitTeacherForm(event) {
+    event.preventDefault();
+    if (!canManageTeachers) {
+        return;
+    }
+
+    const payload = teacherPayloadFromForm();
+    if (!payload) {
+        return;
+    }
+
+    const id = teacherIdInput.value.trim();
+    try {
+        if (id) {
+            await requestJson(`/api/admin/teachers/${id}`, {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Teacher updated successfully!");
+        } else {
+            await requestJson("/api/admin/teachers", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.alert("Teacher created successfully!");
+        }
+        resetTeacherForm();
+        await loadTeachers();
+    } catch (error) {
+        window.alert(`Failed to save teacher: ${error.message}`);
+    }
+}
+
+async function editTeacher(id) {
+    if (!id) {
+        return;
+    }
+    try {
+        const teacher = await requestJson(`/api/admin/teachers/${id}`);
+        teacherIdInput.value = teacher.id || "";
+        teacherCodeInput.value = teacher.teacherId || "";
+        teacherFirstNameInput.value = teacher.firstName || "";
+        teacherLastNameInput.value = teacher.lastName || "";
+        teacherEmailInput.value = teacher.email || "";
+        teacherPhoneInput.value = teacher.phone || "";
+        teacherGenderInput.value = teacher.gender || "";
+        teacherSubjectInput.value = teacher.subjectId || "";
+        teacherClassInput.value = teacher.classId || "";
+        teacherQualificationInput.value = teacher.qualification || "";
+        teacherStatusInput.value = teacher.status || "ACTIVE";
+        teacherFormCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+        window.alert(`Failed to load teacher: ${error.message}`);
+    }
+}
+
+async function deleteTeacher(id, label) {
+    if (!id || !window.confirm(`Are you sure you want to delete ${label}?`)) {
+        return;
+    }
+    try {
+        await requestJson(`/api/admin/teachers/${id}`, { method: "DELETE" });
+        await loadTeachers();
+        window.alert("Teacher deleted successfully!");
+    } catch (error) {
+        window.alert(`Failed to delete teacher: ${error.message}`);
+    }
+}
+
 async function refreshAll() {
   const [subjectData, classData] = await Promise.all([
     requestJson("/api/admin/subjects"),
@@ -666,6 +982,8 @@ async function refreshAll() {
     renderClasses();
     renderSubjectPageClasses();
     renderAssignmentClassOptions();
+    populateTeacherSubjectOptions();
+    populateTeacherClassOptions();
 
     if (assignmentClassSelect && assignmentClassSelect.value) {
         const selectedClass = schoolClasses.find((schoolClass) => schoolClass.id === assignmentClassSelect.value);
@@ -676,6 +994,10 @@ async function refreshAll() {
     }
 
     window.dispatchEvent(new CustomEvent("classes:updated", { detail: schoolClasses }));
+
+    if (pageFromHash() === "teachers") {
+        await loadTeachers();
+    }
 }
 
 subjectForm.addEventListener("submit", async (event) => {
@@ -882,6 +1204,33 @@ if (subjectAssignmentForm) {
 if (classGradeFilter) {
     classGradeFilter.addEventListener("change", renderClasses);
 }
+
+if (teacherForm) {
+    teacherForm.addEventListener("submit", submitTeacherForm);
+}
+
+if (teacherResetButton) {
+    teacherResetButton.addEventListener("click", resetTeacherForm);
+}
+
+if (teacherRefreshButton) {
+    teacherRefreshButton.addEventListener("click", () => {
+        loadTeachers().catch((error) => {
+            window.alert(`Failed to refresh teachers: ${error.message}`);
+        });
+    });
+}
+
+[teacherSearchInput, teacherFilterSubjectInput, teacherFilterClassInput, teacherFilterStatusInput]
+    .filter(Boolean)
+    .forEach((element) => {
+        const eventName = element === teacherSearchInput ? "input" : "change";
+        element.addEventListener(eventName, () => {
+            loadTeachers().catch((error) => {
+                window.alert(`Failed to filter teachers: ${error.message}`);
+            });
+        });
+    });
 
 refreshAll().catch((error) => {
   window.alert(`Failed to load data: ${error.message}`);
