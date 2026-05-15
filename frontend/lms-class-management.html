@@ -11,11 +11,40 @@
 <body class="min-h-screen bg-white p-2 text-slate-900 md:p-4">
 <div class="mx-auto max-w-7xl rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-lg md:p-8">
     <nav class="mb-8 rounded-3xl border border-slate-200 bg-white px-5 py-4 text-slate-900 shadow-sm">
-        <!-- Top row: logo + hamburger toggle -->
+        <!-- Top row: logo + hamburger -->
         <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <img src="./logo.png" alt="Royal Crest Academy logo" class="h-12 w-12 rounded-xl object-contain ring-1 ring-slate-200" />
                 <h1 class="mt-1 text-xl font-bold text-blue-900 md:text-2xl">Royal Crest Academy</h1>
+            </div>
+            <!-- Hamburger button — mobile only -->
+            <button id="mobile-menu-toggle" type="button" aria-label="Toggle navigation" class="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 md:hidden">
+                <svg id="nav-hamburger-icon" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <svg id="nav-close-icon" class="hidden h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <!-- Collapsible menu -->
+        <div id="mobile-menu" class="hidden md:block">
+            <div class="mt-4 border-t border-slate-200 pt-3">
+                <div class="flex flex-col gap-1 text-sm font-semibold md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3">
+                    <div class="hidden md:block" aria-hidden="true"></div>
+                    <div class="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-6">
+                        <a href="#classes" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Classes</a>
+                        <a href="#subjects" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Subjects</a>
+                        <a href="#users" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Users</a>
+                        <a href="#attendance" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Attendance</a>
+                        <a href="#teachers" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Teachers</a>
+                        <a href="#fees" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Fees</a>
+                        <a href="#results" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Results</a>
+                        <a href="#exams" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Exams</a>
+                        <a href="#notifications" class="lms-nav-link rounded-lg px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200">Notifications <span id="nav-notif-badge" class="hidden ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white"></span></a>
+                    </div>
+                    <div class="flex items-center gap-3 border-t border-slate-200 pt-3 md:col-start-3 md:justify-self-end md:border-0 md:pt-0">
+                        <span class="hidden h-6 w-px bg-slate-200 md:block" aria-hidden="true"></span>
+                        <span id="session-badge" class="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700"></span>
+                        <button id="logout-button" type="button" class="rounded-full border border-red-300 bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-700">Logout</button>
+                    </div>
+                </div>
             </div>
             <!-- Hamburger button — mobile only -->
             <button id="mobile-menu-toggle" type="button" aria-label="Toggle navigation" class="flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 md:hidden">
@@ -548,115 +577,208 @@
         </div>
     </section>
 
-    <!-- ===== EXAM MANAGEMENT ===== -->
-    <section id="exams" class="mt-6 hidden">
-      <!-- Exam Form + List -->
-      <div class="mb-6 space-y-6">
-        <div
-          id="exam-form-card"
-          class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200"
-        >
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700"
-          >
-            Examinations
-          </p>
-          <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Form</h2>
-          <form id="exam-form" class="mt-4 space-y-3">
-            <input id="exam-id" type="hidden" />
-            <div>
-              <label class="block text-sm font-medium">Exam Name</label>
-              <input
-                id="exam-name"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="Mid Term Examination"
-                required
-              />
+    <!-- ===== ATTENDANCE MANAGEMENT ===== -->
+    <section id="attendance" class="mt-6 hidden space-y-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-teal-700">Attendance</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Attendance Register</h2>
+            <p class="mt-2 text-sm text-slate-600">Mark daily attendance and generate class reports.</p>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700">Class
+                        <select id="att-class-select" class="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2">
+                            <option value="">Select class</option>
+                        </select>
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700">Date
+                        <input id="att-date-input" type="date" class="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2" />
+                    </label>
+                </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium">Subject Name</label>
-              <input
-                id="exam-subject"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="Mathematics"
-                required
-              />
+            <div class="mt-3">
+                <button id="att-load-btn" type="button" class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white">Load / Mark Attendance</button>
             </div>
-            <div>
-              <label class="block text-sm font-medium">Exam Date</label>
-              <input
-                id="exam-date"
-                type="date"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                required
-              />
+        </div>
+        <div id="att-form-wrapper" class="hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-teal-700">Attendance Grid</p>
+            <h3 class="mt-1 text-lg font-bold text-slate-950">Mark Attendance</h3>
+            <p id="att-form-subtitle" class="mt-1 text-xs text-slate-500"></p>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Student</th>
+                        <th class="p-3 text-center">Present</th>
+                        <th class="p-3 text-center">Absent</th>
+                        <th class="p-3 text-center">Late</th>
+                    </tr>
+                    </thead>
+                    <tbody id="att-student-table-body"></tbody>
+                </table>
             </div>
-            <div>
-              <label class="block text-sm font-medium">Total Marks</label>
-              <input
-                id="exam-total-marks"
-                type="number"
-                min="1"
-                class="w-full rounded-lg border border-slate-300 p-2"
-                placeholder="100"
-                required
-              />
+            <div class="mt-4">
+                <button id="att-save-btn" type="button" class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white">Save Attendance</button>
             </div>
-            <div class="flex gap-2">
-              <button
-                class="rounded-lg bg-rose-600 px-4 py-2 text-white"
-                type="submit"
-              >
-                Save Exam
-              </button>
-              <button
-                id="exam-reset"
-                class="rounded-lg border border-slate-300 px-4 py-2"
-                type="button"
-              >
-                Clear
-              </button>
-            </div>
-          </form>
+        </div>
+    </section>
+
+    <!-- ===== TEACHER MANAGEMENT ===== -->
+    <section id="teachers" class="mt-6 hidden">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600">Teachers</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Teachers</h2>
+            <p class="mt-2 text-sm text-slate-600">This section is reserved for teacher management.</p>
+        </div>
+    </section>
+
+    <!-- ===== RESULTS MANAGEMENT ===== -->
+    <section id="results" class="mt-6 hidden grid gap-6 md:grid-cols-2">
+        <div id="result-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-pink-700">Results</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Result Form</h2>
+            <form id="result-form" class="mt-4 space-y-3">
+                <input id="result-id" type="hidden" />
+                <div>
+                    <label class="block text-sm font-medium">Student</label>
+                    <select id="result-student" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select student</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Class</label>
+                    <select id="result-class" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select class</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Subject</label>
+                    <select id="result-subject" class="w-full rounded-lg border border-slate-300 p-2" required>
+                        <option value="">Select subject</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Marks (0-100)</label>
+                    <input id="result-marks" type="number" min="0" max="100" class="w-full rounded-lg border border-slate-300 p-2" placeholder="85" required />
+                </div>
+                <div class="flex gap-2">
+                    <button class="rounded-lg bg-pink-600 px-4 py-2 text-white" type="submit">Save Result</button>
+                    <button id="result-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                </div>
+            </form>
         </div>
 
-        <div
-          class="rounded-3xl border border-slate-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm"
-        >
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700"
-              >
-                Examinations
-              </p>
-              <h2 class="mt-1 text-xl font-bold text-slate-950">Exam List</h2>
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-pink-50 to-white p-5 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-pink-700">Results</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Class Results</h2>
+                </div>
+                <button id="publish-results-btn" class="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-700">Publish Class Results</button>
             </div>
-            <span
-              class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800"
-              >Manage records</span
-            >
-          </div>
-          <div
-            class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200"
-          >
-            <table class="min-w-full text-left text-sm">
-              <thead>
-                <tr
-                  class="border-b border-slate-200 bg-slate-50 text-slate-600"
-                >
-                  <th class="p-3">Exam Name</th>
-                  <th class="p-3">Subject</th>
-                  <th class="p-3">Date</th>
-                  <th class="p-3">Total Marks</th>
-                  <th class="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="exam-table-body"></tbody>
-            </table>
-          </div>
+            <div class="mt-4 flex gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium">Filter Class</label>
+                    <select id="filter-result-class" class="w-full rounded-lg border border-slate-300 p-2">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 flex-1">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Student</th>
+                        <th class="p-3">Subject</th>
+                        <th class="p-3">Marks</th>
+                        <th class="p-3">Grade</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="result-table-body"></tbody>
+                </table>
+            </div>
         </div>
-      </div>
+    </section>
+
+    <!-- ===== NOTIFICATIONS MANAGEMENT (Student View) ===== -->
+    <section id="notifications" class="mt-6 hidden flex-col gap-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-700">Notifications</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">My Notifications</h2>
+                </div>
+                <button id="clear-notifications-btn" class="rounded-full border border-red-300 bg-red-50 text-red-700 px-4 py-2 text-sm font-semibold hover:bg-red-100">Clear All</button>
+            </div>
+            <div id="notifications-list" class="mt-4 space-y-3">
+                <p class="text-sm text-slate-500">No notifications.</p>
+            </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm mt-6">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-indigo-700">Results</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">My Published Results</h2>
+            <div id="student-results-grid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <p class="text-sm text-slate-500">No published results.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== EXAM MANAGEMENT ===== -->
+    <section id="exams" class="mt-6 hidden space-y-6">
+        <div id="exam-form-card" class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+            <h2 class="mt-1 text-xl font-bold text-slate-950">Exam Form</h2>
+            <form id="exam-form" class="mt-4 space-y-3">
+                <input id="exam-id" type="hidden" />
+                <div>
+                    <label class="block text-sm font-medium">Exam Name</label>
+                    <input id="exam-name" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mid Term Examination" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Subject Name</label>
+                    <input id="exam-subject" class="w-full rounded-lg border border-slate-300 p-2" placeholder="Mathematics" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Exam Date</label>
+                    <input id="exam-date" type="date" class="w-full rounded-lg border border-slate-300 p-2" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Total Marks</label>
+                    <input id="exam-total-marks" type="number" min="1" class="w-full rounded-lg border border-slate-300 p-2" placeholder="100" required />
+                </div>
+                <div class="flex gap-2">
+                    <button class="rounded-lg bg-rose-600 px-4 py-2 text-white" type="submit">Save Exam</button>
+                    <button id="exam-reset" class="rounded-lg border border-slate-300 px-4 py-2" type="button">Clear</button>
+                </div>
+            </form>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-700">Examinations</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-950">Exam List</h2>
+                </div>
+                <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">Manage records</span>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                        <th class="p-3">Exam Name</th>
+                        <th class="p-3">Subject</th>
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Total Marks</th>
+                        <th class="p-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="exam-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </section>
 </div>
 
@@ -664,115 +786,76 @@
 <script src="./lms-class-management.js"></script>
 <script src="./lms-attendance.js"></script>
 <script src="./lms-user-fee-management.js"></script>
+<script src="./lms-notification-management.js"></script>
 <script>
-    (function () {
-        const toggle = document.getElementById("mobile-menu-toggle");
-        const menu = document.getElementById("mobile-menu");
-        const hamburgerIcon = document.getElementById("nav-hamburger-icon");
-        const closeIcon = document.getElementById("nav-close-icon");
-
-        toggle.addEventListener("click", () => {
-            const isHidden = menu.classList.contains("hidden");
-            menu.classList.toggle("hidden");
-            hamburgerIcon.classList.toggle("hidden", !isHidden);
-            closeIcon.classList.toggle("hidden", isHidden);
+(function () {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    const hamburgerIcon = document.getElementById('nav-hamburger-icon');
+    const closeIcon = document.getElementById('nav-close-icon');
+    if (!toggle) return;
+    toggle.addEventListener('click', function () {
+        const isHidden = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden');
+        hamburgerIcon.classList.toggle('hidden', !isHidden);
+        closeIcon.classList.toggle('hidden', isHidden);
+    });
+    menu.querySelectorAll('.lms-nav-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth < 768) {
+                menu.classList.add('hidden');
+                hamburgerIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
         });
-
-        menu.querySelectorAll(".lms-nav-link").forEach((link) => {
-            link.addEventListener("click", () => {
-                if (window.innerWidth < 768) {
-                    menu.classList.add("hidden");
-                    hamburgerIcon.classList.remove("hidden");
-                    closeIcon.classList.add("hidden");
-                }
-            });
-        });
-    })();
+    });
+})();
 </script>
 <script>
-    (function () {
-        const EXAM_KEY = "lms_exams";
-        function loadExams() {
-            try { return JSON.parse(localStorage.getItem(EXAM_KEY) || "[]"); } catch (e) { return []; }
-        }
-        function saveExams(list) { localStorage.setItem(EXAM_KEY, JSON.stringify(list)); }
-        function renderExams() {
-            const tbody = document.getElementById("exam-table-body");
-            if (!tbody) return;
-            const list = loadExams();
-            tbody.innerHTML = "";
-            if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">No exams created yet.</td></tr>';
-                return;
-            }
-            list.forEach(function (exam, idx) {
-                const tr = document.createElement("tr");
-                tr.className = "border-b border-slate-200";
-                tr.innerHTML =
-                    '<td class="p-3 font-medium">' + exam.examName + "</td>" +
-                    '<td class="p-3 text-slate-600">' + exam.subjectName + "</td>" +
-                    '<td class="p-3 text-slate-600">' + exam.examDate + "</td>" +
-                    '<td class="p-3 text-slate-600">' + exam.totalMarks + "</td>" +
-                    '<td class="p-3"></td>';
-                const cell = tr.querySelector("td:last-child");
-                const editBtn = document.createElement("button");
-                editBtn.type = "button";
-                editBtn.className = "mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs";
-                editBtn.textContent = "Edit";
-                editBtn.onclick = function () {
-                    document.getElementById("exam-id").value = idx;
-                    document.getElementById("exam-name").value = exam.examName;
-                    document.getElementById("exam-subject").value = exam.subjectName;
-                    document.getElementById("exam-date").value = exam.examDate;
-                    document.getElementById("exam-total-marks").value = exam.totalMarks;
-                };
-                const delBtn = document.createElement("button");
-                delBtn.type = "button";
-                delBtn.className = "rounded-lg bg-red-600 px-3 py-1 text-xs text-white";
-                delBtn.textContent = "Delete";
-                delBtn.onclick = function () {
-                    if (!confirm('Delete exam "' + exam.examName + '"?')) return;
-                    const updated = loadExams();
-                    updated.splice(idx, 1);
-                    saveExams(updated);
-                    renderExams();
-                };
-                cell.appendChild(editBtn);
-                cell.appendChild(delBtn);
-                tbody.appendChild(tr);
-            });
-        }
-        const form = document.getElementById("exam-form");
-        if (form) {
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-                const idVal = document.getElementById("exam-id").value.trim();
-                const examName = document.getElementById("exam-name").value.trim();
-                const subjectName = document.getElementById("exam-subject").value.trim();
-                const examDate = document.getElementById("exam-date").value;
-                const totalMarks = parseInt(document.getElementById("exam-total-marks").value, 10);
-                if (!examName || !subjectName || !examDate || isNaN(totalMarks) || totalMarks < 1) {
-                    alert("All fields are required and Total Marks must be at least 1.");
-                    return;
-                }
-                const list = loadExams();
-                const record = { examName: examName, subjectName: subjectName, examDate: examDate, totalMarks: totalMarks };
-                if (idVal !== "") { list[parseInt(idVal, 10)] = record; } else { list.push(record); }
-                saveExams(list);
-                form.reset();
-                document.getElementById("exam-id").value = "";
-                renderExams();
-            });
-        }
-        const resetBtn = document.getElementById("exam-reset");
-        if (resetBtn) {
-            resetBtn.addEventListener("click", function () {
-                if (form) form.reset();
-                document.getElementById("exam-id").value = "";
-            });
-        }
-        renderExams();
-    })();
+(function () {
+    var EXAM_KEY = 'lms_exams';
+    function loadExams() { try { return JSON.parse(localStorage.getItem(EXAM_KEY) || '[]'); } catch (e) { return []; } }
+    function saveExams(list) { localStorage.setItem(EXAM_KEY, JSON.stringify(list)); }
+    function renderExams() {
+        var tbody = document.getElementById('exam-table-body');
+        if (!tbody) return;
+        var list = loadExams();
+        tbody.innerHTML = '';
+        if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">No exams created yet.</td></tr>'; return; }
+        list.forEach(function (exam, idx) {
+            var tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-200';
+            tr.innerHTML = '<td class="p-3 font-medium">' + exam.examName + '</td><td class="p-3 text-slate-600">' + exam.subjectName + '</td><td class="p-3 text-slate-600">' + exam.examDate + '</td><td class="p-3 text-slate-600">' + exam.totalMarks + '</td><td class="p-3"></td>';
+            var cell = tr.querySelector('td:last-child');
+            var editBtn = document.createElement('button');
+            editBtn.type = 'button'; editBtn.className = 'mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs'; editBtn.textContent = 'Edit';
+            editBtn.onclick = function () { document.getElementById('exam-id').value = idx; document.getElementById('exam-name').value = exam.examName; document.getElementById('exam-subject').value = exam.subjectName; document.getElementById('exam-date').value = exam.examDate; document.getElementById('exam-total-marks').value = exam.totalMarks; };
+            var delBtn = document.createElement('button');
+            delBtn.type = 'button'; delBtn.className = 'rounded-lg bg-red-600 px-3 py-1 text-xs text-white'; delBtn.textContent = 'Delete';
+            delBtn.onclick = function () { if (!confirm('Delete exam "' + exam.examName + '"?')) return; var u = loadExams(); u.splice(idx, 1); saveExams(u); renderExams(); };
+            cell.appendChild(editBtn); cell.appendChild(delBtn); tbody.appendChild(tr);
+        });
+    }
+    var form = document.getElementById('exam-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var idVal = document.getElementById('exam-id').value.trim();
+            var examName = document.getElementById('exam-name').value.trim();
+            var subjectName = document.getElementById('exam-subject').value.trim();
+            var examDate = document.getElementById('exam-date').value;
+            var totalMarks = parseInt(document.getElementById('exam-total-marks').value, 10);
+            if (!examName || !subjectName || !examDate || isNaN(totalMarks) || totalMarks < 1) { alert('All fields are required and Total Marks must be at least 1.'); return; }
+            var list = loadExams();
+            var record = { examName: examName, subjectName: subjectName, examDate: examDate, totalMarks: totalMarks };
+            if (idVal !== '') { list[parseInt(idVal, 10)] = record; } else { list.push(record); }
+            saveExams(list); form.reset(); document.getElementById('exam-id').value = ''; renderExams();
+        });
+    }
+    var resetBtn = document.getElementById('exam-reset');
+    if (resetBtn) { resetBtn.addEventListener('click', function () { if (form) form.reset(); document.getElementById('exam-id').value = ''; }); }
+    renderExams();
+})();
 </script>
 </body>
 </html>
