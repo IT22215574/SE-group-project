@@ -33,7 +33,7 @@ const assignmentClassSelect = document.getElementById("assignment-class-select")
 const assignmentSubjectList = document.getElementById("assignment-subject-list");
 const assignmentResetButton = document.getElementById("assignment-reset");
 const assignmentCloseButton = document.getElementById("assignment-close");
-const usersSection = document.getElementById("users");
+const studentsSection = document.getElementById("students");
 const attendanceSection = document.getElementById("attendance");
 const teachersSection = document.getElementById("teachers");
 const feesSection = document.getElementById("fees");
@@ -184,15 +184,15 @@ if (subjectAssignmentModal && !canManageClasses) {
     subjectAssignmentModal.classList.add("opacity-75");
 }
 
-const usersNavLink = document.querySelector('a.lms-nav-link[href="#users"]');
+const studentsNavLink = document.querySelector('a.lms-nav-link[href="#students"]');
 const attendanceNavLink = document.querySelector('a.lms-nav-link[href="#attendance"]');
 const teachersNavLink = document.querySelector('a.lms-nav-link[href="#teachers"]');
 const feesNavLink = document.querySelector('a.lms-nav-link[href="#fees"]');
 const examsNavLink = document.querySelector('a.lms-nav-link[href="#exams"]');
 
 if (currentRole !== "admin") {
-    if (usersNavLink) {
-        usersNavLink.classList.add("hidden");
+    if (studentsNavLink) {
+        studentsNavLink.classList.add("hidden");
     }
   if (attendanceNavLink) {
     attendanceNavLink.classList.add("hidden");
@@ -211,7 +211,7 @@ if (currentRole !== "admin") {
 const pageSections = {
     classes: document.getElementById("classes"),
     subjects: document.getElementById("subjects"),
-    users: usersSection,
+    students: studentsSection,
   attendance: attendanceSection,
     teachers: teachersSection,
     fees: feesSection,
@@ -243,7 +243,9 @@ function showOnlyPage(page) {
 }
 
 function syncPageFromHash() {
-  const allowedPages = currentRole === "admin" ? ["classes", "subjects", "users", "attendance", "teachers", "fees", "exams"] : ["classes", "subjects"];
+ const allowedPages = currentRole === "admin"
+    ? ["classes", "subjects", "students", "attendance", "teachers", "fees", "exams"]
+    : ["classes", "subjects"];
     const page = pageFromHash();
 
   if (!page) {
@@ -999,6 +1001,9 @@ async function refreshAll() {
         await loadTeachers();
     }
 }
+window.API_BASE = API_BASE;
+window.requestJson = requestJson;
+window.refreshAllClasses = refreshAll;
 
 subjectForm.addEventListener("submit", async (event) => {
   event.preventDefault();

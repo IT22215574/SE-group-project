@@ -1,134 +1,193 @@
-// Relies on API_BASE and requestJson from lms-class-management.js
+const STUDENT_API_BASE = window.API_BASE || "http://localhost:5001";
+
+async function studentRequestJson(path, options = {}) {
+  if (typeof window.requestJson === "function") {
+    return window.requestJson(path, options);
+  }
+
+  const response = await fetch(`${STUDENT_API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Request failed");
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
 
 const form = document.getElementById("student-form");
 const tableBody = document.getElementById("student-table-body");
 const resetBtn = document.getElementById("student-reset");
-const searchInput = document.getElementById("search") || document.createElement("input"); // prevent crashes
-const searchBtn = document.getElementById("search-btn") || document.createElement("button"); // prevent crashes
+const searchInput =
+  document.getElementById("student-search") ||
+  document.getElementById("search");
+const searchBtn =
+  document.getElementById("student-search-btn") ||
+  document.getElementById("search-btn");
 const classSelect = document.getElementById("student-class");
+
 function getFormData() {
   return {
-    admissionNo: document.getElementById("admission-no").value.trim(),
-    firstName: document.getElementById("first-name").value.trim(),
-    lastName: document.getElementById("last-name").value.trim(),
-    gender: document.getElementById("gender").value,
-    dateOfBirth: document.getElementById("date-of-birth").value || null,
-    email: document.getElementById("email").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
-    grade: document.getElementById("grade").value.trim(),
+    name: document.getElementById("student-name").value.trim(),
+    email: document.getElementById("student-email").value.trim(),
+    phone: document.getElementById("student-phone").value.trim(),
     classId: classSelect.value,
-    guardianName: document.getElementById("guardian-name").value.trim(),
-    guardianPhone: document.getElementById("guardian-phone").value.trim(),
-    guardianEmail: document.getElementById("guardian-email").value.trim(),
-    address: document.getElementById("address").value.trim(),
-    status: document.getElementById("status").value,
-    notes: document.getElementById("notes").value.trim()
   };
 }
 
 function fillForm(student) {
   document.getElementById("student-id").value = student.id || "";
-  document.getElementById("admission-no").value = student.admissionNo || "";
-  document.getElementById("first-name").value = student.firstName || "";
-  document.getElementById("last-name").value = student.lastName || "";
-  document.getElementById("gender").value = student.gender || "";
-  document.getElementById("date-of-birth").value = student.dateOfBirth || "";
-  document.getElementById("email").value = student.email || "";
-  document.getElementById("phone").value = student.phone || "";
-  document.getElementById("grade").value = student.grade || "";
-  classSelect.value = student.classId || "";
-  document.getElementById("guardian-name").value = student.guardianName || "";
-  document.getElementById("guardian-phone").value = student.guardianPhone || "";
-  document.getElementById("guardian-email").value = student.guardianEmail || "";
-  document.getElementById("address").value = student.address || "";
-  document.getElementById("status").value = student.status || "ACTIVE";
-  document.getElementById("notes").value = student.notes || "";
+  document.getElementById("student-name").value = student.name || "";
+  document.getElementById("student-email").value = student.email || "";
+  document.getElementById("student-phone").value = student.phone || "";
+
+  if (classSelect) {
+    classSelect.value = student.classId || "";
+  }
+
+  const formCard = document.getElementById("student-form-card");
+  if (formCard) {
+    formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 async function loadClasses() {
-  try {
-    const classes = await requestJson("/api/admin/classes");
-    classSelect.innerHTML = `<option value="">Select Class</option>`;
+  if (!classSelect) return;
 
-    classes.forEach(cls => {
+  try {
+    const classes = await studentRequestJson("/api/admin/classes");
+    classSelect.innerHTML = `<option value="">Select class</option>`;
+
+    classes.forEach((cls) => {
       const option = document.createElement("option");
       option.value = cls.id;
-      option.textContent = `${cls.className} - Grade ${cls.grade}`;
+      option.textContent = cls.className || `Grade ${cls.grade}`;
       classSelect.appendChild(option);
     });
-  } catch {
+  } catch (error) {
     classSelect.innerHTML = `<option value="">No classes loaded</option>`;
   }
 }
 
 async function loadStudents() {
-  const keyword = searchInput.value.trim();
-  const url = keyword ? `/api/admin/students?keyword=${encodeURIComponent(keyword)}` : "/api/admin/students";
+  if (!tableBody) return;
 
-  const students = await requestJson(url);
-  tableBody.innerHTML = "";
+  const keyword = searchInput ? searchInput.value.trim() : "";
+  const url = keyword
+    ? `/api/admin/students?keyword=${encodeURIComponent(keyword)}`
+    : "/api/admin/students";
 
-  students.forEach(student => {
-    const row = document.createElement("tr");
-    row.className = "border-b";
+  try {
+    const students = await studentRequestJson(url);
+    tableBody.innerHTML = "";
 
-    row.innerHTML = `
-      <td class="p-3">${student.admissionNo || "-"}</td>
-      <td class="p-3">${student.fullName || "-"}</td>
-      <td class="p-3">${student.grade || "-"}</td>
-      <td class="p-3">${student.className || "-"}</td>
-      <td class="p-3">${student.status || "-"}</td>
-      <td class="p-3">
-        <button class="edit-btn rounded bg-amber-500 px-3 py-1 text-white">Edit</button>
-        <button class="delete-btn rounded bg-red-600 px-3 py-1 text-white">Delete</button>
-      </td>
-    `;
+    if (!students.length) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="p-4 text-center text-slate-500">
+            No student records found.
+          </td>
+        </tr>
+      `;
+      return;
+    }
 
-    row.querySelector(".edit-btn").addEventListener("click", () => fillForm(student));
-    row.querySelector(".delete-btn").addEventListener("click", async () => {
-      if (confirm("Delete this student?")) {
-        await requestJson(`/api/admin/students/${student.id}`, { method: "DELETE" });
-        await loadStudents();
-      }
+    students.forEach((student) => {
+      const row = document.createElement("tr");
+      row.className = "border-b";
+
+      row.innerHTML = `
+        <td class="p-3">${student.name || "-"}</td>
+        <td class="p-3">${student.email || "-"}</td>
+        <td class="p-3">${student.phone || "-"}</td>
+        <td class="p-3">${student.className || "-"}</td>
+        <td class="p-3">
+          <button type="button" class="edit-btn rounded bg-amber-500 px-3 py-1 text-white">Edit</button>
+          <button type="button" class="delete-btn rounded bg-red-600 px-3 py-1 text-white">Delete</button>
+        </td>
+      `;
+
+      row.querySelector(".edit-btn").addEventListener("click", () => fillForm(student));
+
+      row.querySelector(".delete-btn").addEventListener("click", async () => {
+        if (!confirm("Delete this student?")) return;
+
+        try {
+          await studentRequestJson(`/api/admin/students/${student.id}`, {
+            method: "DELETE",
+          });
+          await loadStudents();
+          alert("Student deleted successfully!");
+        } catch (error) {
+          alert(`Failed to delete student: ${error.message}`);
+        }
+      });
+
+      tableBody.appendChild(row);
     });
+  } catch (error) {
+    alert(`Failed to load students: ${error.message}`);
+  }
+}
 
-    tableBody.appendChild(row);
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("student-id").value.trim();
+    const data = getFormData();
+
+    try {
+      if (id) {
+        await studentRequestJson(`/api/admin/students/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        });
+        alert("Student updated successfully!");
+      } else {
+        await studentRequestJson("/api/admin/students", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        alert("Student created successfully!");
+      }
+
+      form.reset();
+      document.getElementById("student-id").value = "";
+      await loadStudents();
+    } catch (error) {
+      alert(`Failed to save student: ${error.message}`);
+    }
   });
 }
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    form.reset();
+    document.getElementById("student-id").value = "";
+  });
+}
 
-  const id = document.getElementById("student-id").value;
-  const data = getFormData();
+if (searchBtn) {
+  searchBtn.addEventListener("click", loadStudents);
+}
 
-  if (id) {
-    await requestJson(`/api/admin/students/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data)
-    });
-  } else {
-    await requestJson("/api/admin/students", {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-  }
-
-  form.reset();
-  document.getElementById("student-id").value = "";
-  await loadStudents();
-});
-
-resetBtn.addEventListener("click", () => {
-  form.reset();
-  document.getElementById("student-id").value = "";
-});
-
-searchBtn.addEventListener("click", loadStudents);
+if (searchInput) {
+  searchInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+      loadStudents();
+    }
+  });
+}
 
 loadClasses();
 loadStudents();
 
-window.addEventListener("classes:updated", () => {
-  loadClasses();
-});
+window.addEventListener("classes:updated", loadClasses);
