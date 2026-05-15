@@ -30,6 +30,16 @@ let users = [];
 let fees = [];
 // schoolClasses is declared and shared from lms-class-management.js
 
+function normalizeFeeId(rawId) {
+    if (!rawId) {
+        return "";
+    }
+    if (typeof rawId === "object" && rawId.$oid) {
+        return rawId.$oid;
+    }
+    return String(rawId);
+}
+
 // ─── Helpers (reuse API_BASE from lms-class-management.js) ──────────
 async function requestJsonUF(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, {
@@ -169,6 +179,10 @@ function renderFees() {
         editButton.className = "mr-2 rounded-lg border border-slate-300 px-3 py-1 text-xs";
         editButton.textContent = "Edit";
         editButton.addEventListener("click", () => {
+            if (!fee.id) {
+                window.alert("This fee record is missing an id. Please refresh and try again.");
+                return;
+            }
             feeIdInput.value = fee.id;
             feeUserSelect.value = fee.userId;
             feeDescriptionInput.value = fee.description;
@@ -258,7 +272,10 @@ async function refreshUsersAndFees() {
     ]);
 
     users = userData;
-    fees = feeData;
+    fees = feeData.map((fee) => ({
+        ...fee,
+        id: normalizeFeeId(fee.id || fee._id)
+    }));
     schoolClasses = classData;
 
     populateUserDropdowns();
